@@ -22,7 +22,6 @@ import CardList from "./components/CardList.vue";
 import EditField from "./components/EditField.vue";
 
 const cardListRef = ref<InstanceType<typeof CardList> | null>(null);
-const queryFieldRef = ref<InstanceType<typeof EditField> | null>(null);
 
 const query = ref("")
 const context = ref("No contex ...");
@@ -30,17 +29,19 @@ const context = ref("No contex ...");
 const response = ref(".. waiting for submission ..");
 
 // queryfield is provided via expose from EditField.vue
+/* alternative ...
 watch(
   () => queryFieldRef.value?.content,
   (newVal, oldVal) => {
     console.log('QueryField content changed from', oldVal, '→', newVal);
   }
 );
+*/ 
 
 // query is bound to modelValue of EditField
 watch(query, (newVal, oldVal) => {
   console.log("query changed:", { newVal, oldVal });
-  console.log("QueryField content:", queryFieldRef.value?.content);
+  console.log("QueryField content:", query.value);
 });
 
 const submit = () => {
@@ -58,8 +59,8 @@ const submit = () => {
 const ctxSearch = () => {
   console.log("Search button clicked. Current query:", query.value);
   // Example action: prepend "Searching for: " to the query field content
-  if (queryFieldRef.value && queryFieldRef.value.content !== "") {
-    context.value = "Searching for: " + (queryFieldRef.value.content || "");
+  if (query.value !== "") {
+    context.value = "Searching for: " + (query.value || "");
     response.value = ".. waiting for submission ..";
     setTimeout(() => {
       context.value = "This is a simulated context response based on the query and card list.";

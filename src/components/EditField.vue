@@ -37,14 +37,13 @@ const props = withDefaults(defineProps<{
 
 const placeHolder = computed(() => props.content == "" ? 'Write something…' : props.content);
 
-defineEmits<{
+const emit = defineEmits<{
+  (e: 'update:content', value: string): void,
   (e: 'button-click'): void,  // no payload, just the event
 }>();
 
-
 /* Internal state – expose it so a parent can read/write if needed */
 const content = ref<string>('');
-defineExpose({ content });
 
 // Expose a reactive disabled flag the template can use
 const disabled = computed(() => !!props.disabled);
@@ -58,5 +57,11 @@ watch(
     { immediate: true }
 );
 
+
+// Emit updates when the internal content changes
+watch(content, (val) => {
+    console.log("EditField content changed:", val);
+    emit('update:content', val);
+});
 
 </script>

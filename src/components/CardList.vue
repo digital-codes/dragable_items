@@ -1,6 +1,6 @@
 <!-- src/components/CardList.vue -->
 <template>
-  <div :class="styles.cardContainer">
+  <div :class="[styles.cardContainer, styles.listCard]" >
     <!-- ===== Header ===== -->
     <div :class="styles.cardHeader">
       <h3>{{ title }}</h3>
