@@ -4,6 +4,7 @@
     <!-- Header -->
     <div :class="styles.cardHeader">
       <h3>{{ title }}</h3>
+      <button v-if="button" @click="$emit('button-click')">{{ button }}</button>
     </div>
 
     <!-- Textarea – full‑width, non‑resizable, vertical scroll -->
@@ -26,17 +27,20 @@ const props = withDefaults(defineProps<{
     title?: string;
     content?: string;
     disabled?: boolean;
+    button?: string;
 }>(), {
     title: 'No title',
     content: '',
     disabled: false,
+    button: ''
 });
 
 const placeHolder = computed(() => props.content == "" ? 'Write something…' : props.content);
 
-const emit = defineEmits<{
-    (e: 'update:content', value: string): void;
+defineEmits<{
+  (e: 'button-click'): void,  // no payload, just the event
 }>();
+
 
 /* Internal state – expose it so a parent can read/write if needed */
 const content = ref<string>('');
@@ -54,11 +58,5 @@ watch(
     { immediate: true }
 );
 
-
-// Emit updates when the internal content changes
-watch(content, (val) => {
-    console.log("EditField content changed:", val);
-    emit('update:content', val);
-});
 
 </script>

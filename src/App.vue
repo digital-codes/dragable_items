@@ -9,8 +9,8 @@
 
     <!-- EditField on the right (or below – CSS decides) -->
 
-    <EditField title="Query" v-model:content="query" :disabled="false" ref="queryFieldRef" />
-    <EditField title="Context" v-model:content="context" :disabled="true" />
+    <EditField title="Query" v-model:content="query" :disabled="false" ref="queryFieldRef" button="Search" @button-click="ctxSearch"/>
+    <EditField title="Context" v-model:content="context" :disabled="true" button="Clear" @button-click="ctxClear"/>
     <EditField title="Response" v-model:content="response" :disabled="true" />
   </div>
 </template>
@@ -25,7 +25,7 @@ const cardListRef = ref<InstanceType<typeof CardList> | null>(null);
 const queryFieldRef = ref<InstanceType<typeof EditField> | null>(null);
 
 const query = ref("")
-const context = ref("This is some read-only context information.");
+const context = ref("No contex ...");
 
 const response = ref(".. waiting for submission ..");
 
@@ -44,16 +44,37 @@ watch(query, (newVal, oldVal) => {
 });
 
 const submit = () => {
-  response.value = ".. waiting for submission .."
+  response.value = ".. waiting for response .."
   console.log("Submitting data:");
   console.log("Query:", query.value);
   console.log("CardList items:", cardListRef.value?.getCombinedText());
-  console.log("Context:", context);
+  console.log("Context:", context.value);
   // Simulate a response
   setTimeout(() => {
     response.value = "This is a simulated response based on the query and card list.";
   }, 2000);
 };
+
+const ctxSearch = () => {
+  console.log("Search button clicked. Current query:", query.value);
+  // Example action: prepend "Searching for: " to the query field content
+  if (queryFieldRef.value && queryFieldRef.value.content !== "") {
+    context.value = "Searching for: " + (queryFieldRef.value.content || "");
+    response.value = ".. waiting for submission ..";
+    setTimeout(() => {
+      context.value = "This is a simulated context response based on the query and card list.";
+    }, 2000);
+  }
+};
+
+const ctxClear = () => {
+  console.log("Clear button clicked.");
+  if (context.value) {
+    context.value = "No context ...";
+    response.value = ".. waiting for submission ..";
+  }
+};
+
 
 </script>
 
