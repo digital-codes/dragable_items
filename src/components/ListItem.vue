@@ -1,6 +1,6 @@
 <!-- src/components/ListItem.vue -->
 <template>
-  <div :class="[styles.listItem, { [styles.fixed]: fixed }]">
+  <div :class="['listItem', { fixed }]">
     <!-- static class for the drag‑handle (cursor handled in global CSS) -->
     <span v-if="!fixed" class="drag-handle">☰</span>
 
@@ -9,15 +9,14 @@
       @input="onInput"
       :readonly="fixed"
       placeholder="Enter text…"
-      :class="styles.itemInput"
+      class="itemInput"
     />
 
-    <button :class="styles.deleteBtn" @click="$emit('delete')">✕</button>
+    <button class="deleteBtn" @click="$emit('delete')">✕</button>
   </div>
 </template>
 
 <script lang="ts" setup>
-import styles from '@/styles/style.module.scss'
 
 // ----- Props ----------------------------------------------------
 interface Props {

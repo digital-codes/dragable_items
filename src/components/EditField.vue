@@ -1,8 +1,8 @@
 <!-- src/components/EditField.vue -->
 <template>
-  <div :class="styles.cardContainer">
+  <div class="cardContainer">
     <!-- Header -->
-    <div :class="styles.cardHeader">
+    <div class="cardHeader">
       <h3>{{ title }}</h3>
       <button v-if="button" @click="$emit('button-click')">{{ button }}</button>
     </div>
@@ -10,7 +10,7 @@
     <!-- Textarea – full‑width, non‑resizable, vertical scroll -->
     <textarea
       v-model="content"
-      :class="styles.editTextarea"
+      class="editTextarea"
       :placeholder="placeHolder"
       :disabled="disabled"
     ></textarea>
@@ -19,7 +19,6 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import styles from '@/styles/style.module.scss'
 
 import { watch, computed } from 'vue';
 

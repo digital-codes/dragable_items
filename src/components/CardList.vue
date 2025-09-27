@@ -1,8 +1,8 @@
 <!-- src/components/CardList.vue -->
 <template>
-  <div :class="[styles.cardContainer, styles.listCard]" >
+  <div :class="['cardContainer', 'listCard']" >
     <!-- ===== Header ===== -->
-    <div :class="styles.cardHeader">
+    <div class="cardHeader">
       <h3>{{ title }}</h3>
 
       <select v-model="selectedTemplate" @change="addFromTemplate">
@@ -12,8 +12,8 @@
 
       <button @click="addEmptyItem">✏️ Edit</button>
 
-      <select v-if="!condition" v-model="selectedCondition" @change="addCondition">
-        <option disabled value="">Add condition…</option>
+      <select v-model="selectedCondition" @change="addCondition" :disabled="condition">
+        <option value="">Add condition…</option>
         <option v-for="(c, i) in conditionPresets" :key="i" :value="c">
           {{ c }}
         </option>
@@ -50,7 +50,6 @@
 import { ref } from 'vue';
 import draggable from 'vuedraggable';
 import ListItem from './ListItem.vue';
-import styles from '@/styles/style.module.scss'
 
 /* ---------- Types ---------- */
 interface ListItemData {
