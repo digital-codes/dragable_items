@@ -11,4 +11,15 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src')
     },
   },
+   server: {
+    proxy: {
+      // forward anything starting with /php to your PHP backend
+      '/php': {
+        target: 'http://localhost:9000', // where your PHP server runs
+        changeOrigin: true,
+        // optional: strip "/php" if backend paths don’t include it
+        // rewrite: (path) => path.replace(/^\/php/, '')
+      }
+    }
+  },
 })

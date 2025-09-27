@@ -22,3 +22,30 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# php stuff
+vendor/
+*.pem
+composer.lock
+.env
+.env.local
+.env.*.local
+.phpunit.result.cache
+.php_cs.cache
+.php_cs.dist
+.phpstorm.meta.php
+.phpdoc.dist.xml
+.phpdoc.xml
+build/
+coverage/
+tests/_output/
+tests/_support/Helper/.gitkeep
+tests/_support/Helper/.DS_Store 
+# temporary files
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+*.swp
+*~

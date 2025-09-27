@@ -33,15 +33,10 @@ async function onSubmit() {
     return
   }
   try {
-    if (code.value === "1234") {
-        emit("success", "dummy_token")
-        return
-    }
-
-    const res = await fetch("/api/login", {
+    const res = await fetch("/php/llamaLogin.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: code.value }),
+      body: JSON.stringify({ username: "any",password: code.value }),
     })
     if (!res.ok) throw new Error("Invalid code")
     const data = await res.json()
