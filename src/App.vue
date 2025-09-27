@@ -9,9 +9,9 @@
 
     <!-- EditField on the right (or below – CSS decides) -->
 
-    <EditField title="Query" v-model:content="query" :disabled="false" ref="queryFieldRef" button="Search" @button-click="ctxSearch"/>
-    <EditField title="Context" v-model:content="context" :disabled="true" button="Clear" @button-click="ctxClear"/>
-    <EditField title="Response" v-model:content="response" :disabled="true" />
+    <EditField title="Query" v-model:fieldContent="query" :disabled="false" ref="queryFieldRef" button="Search" @button-click="ctxSearch"/>
+    <EditField title="Context" v-model:fieldContent="context" :disabled="true" button="Clear" @button-click="ctxClear"/>
+    <EditField title="Response" v-model:fieldContent="response" :disabled="true" />
   </div>
 </template>
 

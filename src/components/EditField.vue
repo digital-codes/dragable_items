@@ -25,32 +25,34 @@ import { watch, computed } from 'vue';
 
 const props = withDefaults(defineProps<{
     title?: string;
-    content?: string;
     disabled?: boolean;
     button?: string;
 }>(), {
     title: 'No title',
-    content: '',
     disabled: false,
     button: ''
 });
 
-const placeHolder = computed(() => props.content == "" ? 'Write something…' : props.content);
+const placeHolder = computed(() => fieldContent.value == "" ? 'Write something…' : fieldContent.value);
 
-const emit = defineEmits<{
-  (e: 'update:content', value: string): void,
+defineEmits<{
   (e: 'button-click'): void,  // no payload, just the event
 }>();
 
 /* Internal state – expose it so a parent can read/write if needed */
 const content = ref<string>('');
 
+const fieldContent = defineModel("fieldContent", {
+  type: String,
+  default: ''
+});
+
 // Expose a reactive disabled flag the template can use
 const disabled = computed(() => !!props.disabled);
 
 // Keep internal content in sync with the incoming prop
 watch(
-    () => props.content,
+    () => fieldContent.value,
     (val) => {
         if (val !== undefined && val !== content.value) content.value = val;
     },
@@ -60,8 +62,7 @@ watch(
 
 // Emit updates when the internal content changes
 watch(content, (val) => {
-    console.log("EditField content changed:", val);
-    emit('update:content', val);
-});
+    fieldContent.value = val;  // keep the prop in sync
+}, { immediate: true });
 
 </script>
