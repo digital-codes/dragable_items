@@ -435,3 +435,57 @@ body {
   opacity: 0.5;
   transform: rotate(2deg);
 }
+
+/* Login button tick */
+.loginBtn .tick {
+  color: #28a745; /* green */
+  margin-right: 4px;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+/* Modal box */
+.modal {
+  background: var(--control-bg-light);
+  color: var(--text-light);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 1rem;
+  width: 300px;
+}
+.app-container.dark .modal {
+  background: var(--control-bg-dark);
+  color: var(--text-dark);
+  border: 1px solid var(--border-dark);
+}
+
+/* Code input */
+.codeInput {
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  font: inherit;
+}
+.app-container.dark .codeInput {
+  border: 1px solid var(--border-dark);
+  background: var(--control-bg-dark);
+  color: var(--text-dark);
+}
+
+/* Modal actions */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

@@ -12,6 +12,10 @@
       </div>
 
       <div class="right-controls">
+    <button class="button loginBtn" @click="openLogin">
+        <span v-if="loggedIn" class="tick">✔</span>
+        Login
+      </button>
         <button @click="submit" class="button">Submit</button>
         <button class="button" @click="toggleTheme">
           <font-awesome-icon :icon="['fas', theme === 'light' ? 'moon' : 'sun']" />
@@ -36,6 +40,14 @@
       </div>
     </div>
   </div>
+
+  <!-- Login popup -->
+  <LoginPopup
+    v-if="showLogin"
+    @success="handleLoginSuccess"
+    @close="showLogin = false"
+  />
+
 </template>
 
 <script setup lang="ts">
@@ -43,10 +55,15 @@ import { ref, onMounted } from "vue";
 import { watch } from "vue";
 import CardList from "./components/CardList.vue";
 import EditField from "./components/EditField.vue";
+import LoginPopup from "./components/LoginPop.vue"
 
 //import { useSearchTopics, getAllTopics } from './composables/SearchTopics';
 import { useSearchTopics } from './composables/SearchTopics';
 const { search } = useSearchTopics()
+
+
+const showLogin = ref(false)
+const loggedIn = ref(false)
 
 const cardListRef = ref<InstanceType<typeof CardList> | null>(null);
 
@@ -65,6 +82,21 @@ watch(query, (newVal, oldVal) => {
   console.log("query changed:", { newVal, oldVal });
   console.log("QueryField content:", query.value);
 });
+
+const openLogin = () => {
+  loggedIn.value = false
+  localStorage.removeItem("auth-token")
+  showLogin.value = true
+}
+
+
+function handleLoginSuccess(token: string) {
+  localStorage.setItem("auth-token", token)
+  loggedIn.value = true
+  showLogin.value = false
+}
+
+
 
 const submit = () => {
   response.value = ".. waiting for response .."
