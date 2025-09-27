@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<{
     button: ''
 });
 
-const placeHolder = computed(() => fieldContent.value == "" ? 'Write something…' : fieldContent.value);
+const placeHolder = computed(() => fieldContent.value == "" ? (disabled? '':'Write something…') : fieldContent.value);
 
 defineEmits<{
   (e: 'button-click'): void,  // no payload, just the event

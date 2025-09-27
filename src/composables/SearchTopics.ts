@@ -21,57 +21,57 @@ const fuse = ref<Fuse<string> | null>(null);
 const topics = ref<Record<string, string>>({});
 let initialized = false;
 
+
 /**
  * Initializes the list of available topics if not already initialized.
  * This function is used internally and should not be called directly.
  */
 function initializeTopics() {
     topics.value = {
-        "klimawandel": "x",
-        "nachhaltigkeit": "x",
-        "erneuerbare energien": "x",
-        "umweltschutz": "x",
-        "co2-fußabdruck": "x",
-        "energieeffizienz": "x",
-        "baum": "x",
-        "bäume": "x",
-        "platane": "x",
-        "fällen": "x",
-        "ersetzen": "x",
-        "pflanzen": "x",
-        "wetter": "x",
-        "stadt": "x",
-        "stadtplanung": "x",
-        "verkehr": "x",
-        "auto": "x",
-        "umwelt": "x",
-        "ökologie": "x",
-        "geht": "x",
-        "heißt": "x",
-        "heisst": "x",
-        "regen": "x",
-        "sonne": "x",
-        "wind": "x",
-        "warm": "x",
-        "kalt": "x",
-        "strasse": "x",
+        "klimawandel": "climate",
+        "nachhaltigkeit": "politics",
+        "erneuerbare energien": "politics",
+        "umweltschutz": "politics",
+        "co2-fußabdruck": "climate",
+        "energieeffizienz": "climate",
+        "baum": "nature",
+        "bäume": "nature",
+        "platane": "nature",
+        "fällen": "politics",
+        "ersetzen": "politics",
+        "pflanzen": "nature",
+        "wetter": "climate",
+        "stadt": "politics",
+        "stadtplanung": "politics",
+        "umwelt": "nature",
+        "ökologie": "nature",
+        "geht": "condition",
+        "heißt": "condition",
+        "heisst": "condition",
+        "regen": "climate",
+        "sonne": "climate",
+        "wind": "climate",
+        "warm": "climate",
+        "kalt": "climate",
+        "strasse": "politics",
         "straße": "x",
         "straßen": "x",
         "kaiserstraße": "x",
-        "umbau": "x",
-        "umgestaltung": "x",
-        "renovierung": "x",
-        "protest": "x",
-        "demonstration": "x",
-        "aktion": "x",
-        "verhindern": "x",
-        "behindern": "x",
-        "verwaltung": "x",
-        "politik": "x",
-        "stadtverwaltung": "x",
-        "stadtpolitik": "x",
-        "gesundheit": "x",
-        "leben": "x"
+        "umbau": "politics",
+        "umgestaltung": "politics",
+        "renovierung": "politics",
+        "protest": "activism",
+        "demonstration": "activism",
+        "aktion": "activism",
+        "widerstand": "activism",
+        "verhindern": "activism",
+        "behindern": "activism",
+        "verwaltung": "politics",
+        "politik": "politics",
+        "stadtverwaltung": "politics",
+        "stadtpolitik": "politics",
+        "gesundheit": "nature",
+        "leben": "nature"
     };
     fuse.value = new Fuse(Object.keys(topics.value), fuseOpts);  initialized = true;
 }
@@ -130,6 +130,15 @@ export function getAllTopics(): string[] {
     }
     return Object.keys(topics.value);
 }
+
+export function getTopicClass(topic: string): string {
+    if (!initialized) {
+        initializeTopics();
+    }
+    return topics.value[topic] || "";
+}
+
+
 
 /*
 Example usage in a Vue component:

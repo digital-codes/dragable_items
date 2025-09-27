@@ -56,6 +56,9 @@ import LoginPopup from "./components/LoginPop.vue"
 //import { useSearchTopics, getAllTopics } from './composables/SearchTopics';
 import { useSearchTopics } from './composables/SearchTopics';
 const { search } = useSearchTopics()
+import { getTopicClass } from './composables/SearchTopics';
+
+import { contextMatch } from './services/ContextMatch';
 
 
 const showLogin = ref(false)
@@ -121,12 +124,33 @@ const ctxSearch = () => {
     statusText.value = "Searching...";
     const results = search(query.value);
     console.log("Search results:", results);
+    if (results.length === 0) {
+      context.value = "";
+      loading.value = false;
+      statusText.value = "Nichts gefunden";
+      response.value = ".. waiting for submission ..";
+      return;
+    }
+    const classes = Array.from(new Set(results.map(r => getTopicClass(r)).filter(Boolean)));
+    console.log("Result classes:", classes);    
+    const matchedContext = contextMatch(classes, fullContext.value);
+    console.log("Matched context:", matchedContext);
+    if (matchedContext) {
+      context.value = matchedContext;
+      statusText.value = "Done";
+    } else {
+      context.value = "";
+      statusText.value = "Nichts gefunden";
+    }
+    loading.value = false;
     response.value = ".. waiting for submission ..";
+    /*
     setTimeout(() => {
       loading.value = false;
       statusText.value = "Done";
       context.value = results.length > 0 ? "Results: " + results.join(", ") : "No results found.";
     }, 2000);
+    */
   }
 };
 
@@ -158,7 +182,11 @@ onMounted(() => {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object') {
         fullContext.value = data
-        console.log('Loaded context from /data/context.json', data);
+        console.log('Loaded context from /data/context.json') //, data);
+        const uniqueKeys = Array.from(
+          new Set(fullContext.value.flatMap(obj => Object.keys(obj)))
+        );
+        console.log("Unique keys in /data/context.json:", uniqueKeys);
       } else {
         console.warn('Invalid format in /data/context.json');
       }
