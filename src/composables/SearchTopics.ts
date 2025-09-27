@@ -7,9 +7,16 @@
 
 // Node
 import stopwords from 'stopwords-de'; // array of stopwords 
-
 import { ref } from 'vue';
+import Fuse, { IFuseOptions }  from 'fuse.js';
+const fuseOpts: IFuseOptions<string> = {
+  includeScore: true,
+  ignoreLocation: true,
+  minMatchCharLength: 3,
+  threshold: 0.2,
+};
 
+const fuse = ref<Fuse<string> | null>(null);
 
 const topics = ref<string[]>([]);
 let initialized = false;
@@ -55,7 +62,7 @@ function initializeTopics() {
         "umgestaltung",
         "renovierung",
     ];
-
+    fuse.value = new Fuse(topics.value, fuseOpts);
     initialized = true;
 }
 
@@ -75,12 +82,16 @@ export function useSearchTopics() {
         }
         const query = input.trim().toLowerCase();
         if (!query) return [];
-        const words = query.split(/\s+/).filter(word => !stopwords.includes(word));
+
+        const words = query.split(/[^\p{L}\p{N}]+/u).filter(word => word && !stopwords.includes(word));  if (words.length === 0) return [];
+        //const words = query.split(/\s+/).filter(word => !stopwords.includes(word));
         if (words.length === 0) return [];
-        const cleanWords = words.map(word => word.replace(/^[.,;:!?]+|[.,;:!?]+$/g, ''));
-        console.log("Searching topics for:", cleanWords);
+        //const cleanWords = words.map(word => word.replace(/^[.,;:!?]+|[.,;:!?]+$/g, ''));
+        console.log("Searching topics for:", words);
         const categoryList: string[] = [];
-        cleanWords.forEach(word => {
+        words.forEach(word => {
+            const fs = fuse.value?.search(word);
+            console.log(`Fuse search for "${word}":`, fs);
             if (topics.value.includes(word) && !categoryList.includes(word)) {
                 categoryList.push(word);
             }

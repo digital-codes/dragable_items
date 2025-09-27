@@ -21,7 +21,8 @@ import { watch } from "vue";
 import CardList from "./components/CardList.vue";
 import EditField from "./components/EditField.vue";
 
-import { useSearchTopics, getAllTopics } from './composables/SearchTopics';
+//import { useSearchTopics, getAllTopics } from './composables/SearchTopics';
+import { useSearchTopics } from './composables/SearchTopics';
 const { search } = useSearchTopics()
 
 const cardListRef = ref<InstanceType<typeof CardList> | null>(null);
