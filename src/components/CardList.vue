@@ -134,11 +134,14 @@ function removeItem(idx: number): void {
 /* ---------- Text aggregation ---------- */
 function getCombinedText(): string {
   const parts = items.value.map(i => i.text);
-  if (condition.value) parts.push(condition.value.text);
+  //if (condition.value) parts.push(condition.value.text); // separate
   return parts.join('\n');
 }
 
 
 /* Expose the getter for a possible parent component */
-defineExpose({ getCombinedText });
+defineExpose({ 
+  getCombinedText,  
+  getConditions: () => condition.value ? condition.value.text : null 
+});
 </script>

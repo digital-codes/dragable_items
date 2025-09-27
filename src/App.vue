@@ -102,17 +102,76 @@ function handleLoginSuccess(token: string) {
 const submit = () => {
   response.value = ".. waiting for response .."
   console.log("Submitting data:");
-  console.log("Query:", query.value);
-  console.log("CardList items:", cardListRef.value?.getCombinedText());
+  const q = query.value.trim();
+  console.log("Query:", q);
+  const p = cardListRef.value?.getCombinedText().trim() ?? "";
+  console.log("Prompt:", p);
+  if (p.length === 0) {
+    statusText.value = "Prompt is empty";
+    response.value = "Please add some prompt text before submitting.";
+    return;
+  }
+  const cd = cardListRef.value?.getConditions()?.trim() ?? null;
+  console.log("Conditions:", cd);
+  if (cd && cd.length > 0) {
+    context.value += "\n" + cd;
+    console.log("Including conditions in prompt.");
+  }
   console.log("Context:", context.value);
   loading.value = true;
   statusText.value = "Loading...";
-  // Simulate a response
-  setTimeout(() => {
+  if (!loggedIn.value) {
     loading.value = false;
-    statusText.value = "Done";
-    response.value = "This is a simulated response based on the query and card list.";
-  }, 2000);
+    statusText.value = "Not logged in";
+    response.value = "Please log in to submit your query.";
+    return;
+  }
+  (async () => {
+    try {
+      const token = localStorage.getItem("auth-token");
+      const payload = {
+        query: q,
+        prompt: p,
+        context: context.value
+      };
+      statusText.value = "Sending request…";
+      const res = await fetch("/php/llamaChat.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Request failed (${res.status}): ${errText}`);
+      }
+
+      // try parse JSON, fall back to text
+      let body: any;
+      try {
+        body = await res.json();
+      } catch {
+        body = await res.text();
+      }
+
+      loading.value = false;
+      statusText.value = "Done";
+      if (body && typeof body === "object" && "text" in body) {
+        response.value = String(body.text);
+      } else {
+        response.value = String(body ?? "No response body");
+      }
+      console.log("Submit success:", body);
+    } catch (err: any) {
+      console.error("Submit error:", err);
+      loading.value = false;
+      statusText.value = "Error";
+      response.value = err?.message ?? String(err);
+    }
+  })();
 };
 
 const ctxSearch = () => {
