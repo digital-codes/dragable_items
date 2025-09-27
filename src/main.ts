@@ -17,7 +17,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
 // Import global styles
-import "./styles/style.module.scss";
+import "./styles/style.scss";
 
 const app = createApp(App);
 app.component("font-awesome-icon", FontAwesomeIcon);

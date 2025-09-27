@@ -3,18 +3,19 @@
   <div class="app-container" :class="theme">
     <!-- Header -->
     <header class="app-header">
+      <h2 class="app-title">Frag die Platane</h2>
       <div class="left-controls">
-        <button @click="submit" class="submit-btn">Submit</button>
+        <div class="status">
+          <span>Status: {{ statusText }}</span>
+          <span v-if="loading" class="spinner"></span>
+        </div>
       </div>
 
       <div class="right-controls">
-        <button class="theme-toggle" @click="toggleTheme">
+        <button @click="submit" class="button">Submit</button>
+        <button class="button" @click="toggleTheme">
           <font-awesome-icon :icon="['fas', theme === 'light' ? 'moon' : 'sun']" />
         </button>
-        <div class="status">
-          <span>{{ statusText }}</span>
-          <span v-if="loading" class="spinner"></span>
-        </div>
       </div>
     </header>
 

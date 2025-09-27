@@ -1,0 +1,437 @@
+/* =========================================================
+   Variables
+   ========================================================= */
+:root {
+  --bg-light: #f9f9f9;
+  --bg-dark: #1e1e1e;
+
+  --text-light: #111;
+  --text-dark: #eee;
+
+  --border-light: #ddd;
+  --border-dark: #444;
+
+  --control-bg-light: #fff;
+  --control-bg-dark: #2a2a2a;
+
+  --control-hover-light: #f0f0f0;
+  --control-hover-dark: #333;
+
+  --header-height: 60px;
+  --gap: 8px;
+}
+
+/* =========================================================
+   Base
+   ========================================================= */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* scroll only inside containers */
+  box-sizing: border-box;
+  font-family: "Roboto", system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-light);
+  color: var(--text-light);
+}
+.app-container.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+/* =========================================================
+   Header layout
+   ========================================================= */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: var(--header-height);
+  display: flex;
+  align-items: center;         /* vertical centering for all children */
+  justify-content: space-between;
+  padding: 0 12px;
+  background: inherit;
+  border-bottom: 1px solid var(--border-light);
+}
+.app-container.dark .app-header {
+  border-bottom: 1px solid var(--border-dark);
+}
+
+/* =========================================================
+   Buttons (Submit + Theme toggle)
+   ========================================================= */
+.app-header .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  font: inherit;
+  color: inherit;
+
+  height: 32px;                /* fixed height */
+  line-height: 32px;           /* text baseline aligns */
+  padding: 0 12px;
+
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  box-sizing: border-box;
+
+  vertical-align: middle;
+}
+
+.app-header .button svg,
+.app-header .button span,
+.app-header .button i {
+  display: block;
+  line-height: 1;
+}
+
+.app-header .button svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Light */
+.app-container.light .app-header .button {
+  background: var(--control-bg-light);
+  border-color: var(--border-light);
+  color: var(--text-light);
+}
+.app-container.light .app-header .button:hover {
+  background: var(--control-hover-light);
+}
+
+/* Dark */
+.app-container.dark .app-header .button {
+  background: var(--control-bg-dark);
+  border-color: var(--border-dark);
+  color: var(--text-dark);
+}
+.app-container.dark .app-header .button:hover {
+  background: var(--control-hover-dark);
+}
+
+/* =========================================================
+   Status block (text + spinner)
+   ========================================================= */
+.app-header .status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+
+  font: inherit;
+  height: 32px;                /* same height as buttons */
+  line-height: 32px;           /* vertically aligned baseline */
+  vertical-align: middle;
+}
+
+.app-header .status-text {
+  display: block;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.app-header .spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =========================================================
+   Wrapper (main layout)
+   ========================================================= */
+.wrapper {
+  height: calc(100vh - var(--header-height));
+  display: grid;
+  gap: var(--gap);
+  padding: var(--gap);
+  min-height: 0;
+}
+
+/* Wide: 4 columns (CardList wide, 3 EditFields) */
+@media (min-width: 1200px) {
+  .wrapper {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .cardlist-container {
+    grid-column: 1 / 2;
+    grid-row: 1;
+  }
+  .editfields-container {
+    grid-column: 2 / 5;
+    grid-row: 1;
+  }
+}
+
+/* Narrow: 2 rows (CardList on top, EditFields below, still 3 columns) */
+@media (max-width: 1199px) {
+  .wrapper {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .cardlist-container {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .editfields-container {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+.cardlist-container,
+.editfields-container {
+  min-height: 0;
+  min-width: 0;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: transparent;
+  overflow: hidden;
+}
+.app-container.dark .cardlist-container,
+.app-container.dark .editfields-container {
+  border: 1px solid var(--border-dark);
+}
+
+.editfields-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: var(--gap);
+  padding: var(--gap);
+  padding-top: 0;
+  min-height: 0;
+}
+.editfields-container > * {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================================
+   Card headers (consistent height)
+   ========================================================= */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--border-light);
+  height: 40px;                      /* fixed consistent height */
+  min-height: 40px;
+  box-sizing: border-box;
+}
+.app-container.dark .cardHeader {
+  border-bottom: 1px solid var(--border-dark);
+}
+
+.cardHeader h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardHeader .controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* Controls (select + button) */
+.cardHeader select,
+.cardHeader button {
+  font: inherit;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid currentColor;
+  cursor: pointer;
+  background: transparent;
+  height: 28px;                     /* force uniform control height */
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Selects triple width of buttons */
+.cardHeader select { flex: 3 1 auto; min-width: 120px; }
+.cardHeader button { flex: 1 1 auto; min-width: 40px; }
+
+/* Light controls */
+.app-container.light .cardHeader select,
+.app-container.light .cardHeader button {
+  background: var(--control-bg-light);
+  border-color: var(--border-light);
+  color: var(--text-light);
+}
+.app-container.light .cardHeader select:hover,
+.app-container.light .cardHeader button:hover {
+  background: var(--control-hover-light);
+}
+
+/* Dark controls */
+.app-container.dark .cardHeader select,
+.app-container.dark .cardHeader button {
+  background: var(--control-bg-dark);
+  border-color: var(--border-dark);
+  color: var(--text-dark);
+}
+.app-container.dark .cardHeader select:hover,
+.app-container.dark .cardHeader button:hover {
+  background: var(--control-hover-dark);
+}
+
+/* =========================================================
+   Responsive tweak: hide Edit button icon on small screens
+   ========================================================= */
+@media (max-width: 600px) {
+  .cardHeader .editBtn .icon {
+    display: none;   /* hide the icon span */
+  }
+}
+
+/* =========================================================
+   Edit textarea
+   ========================================================= */
+.editTextarea {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  resize: none;
+  overflow-y: auto;
+  padding: 0.5rem;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: var(--control-bg-light);
+  color: var(--text-light);
+  box-sizing: border-box;
+}
+.app-container.dark .editTextarea {
+  border: 1px solid var(--border-dark);
+  background: var(--control-bg-dark);
+  color: var(--text-dark);
+}
+/* =========================================================
+   Draggable list items
+   ========================================================= */
+.listItem {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--border-light);
+  background: var(--control-bg-light);
+  color: var(--text-light);          /* inherit theme text */
+  box-sizing: border-box;
+  transition: background 0.2s ease;
+}
+.app-container.dark .listItem {
+  border-top: 1px solid var(--border-dark);
+  background: var(--control-bg-dark);
+  color: var(--text-dark);           /* dark theme text */
+}
+
+/* Fixed item (dimmed, non-editable) */
+.listItem.fixed {
+  opacity: 0.6;                      /* visually distinct */
+  cursor: default;
+}
+
+/* Drag handle */
+.drag-handle {
+  cursor: grab;
+  margin-right: 0.5rem;
+  user-select: none;
+  font-size: 1.2rem;
+  color: inherit;                    /* follow theme text */
+}
+.drag-handle:active { cursor: grabbing; }
+
+/* Input */
+.itemInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.95rem;
+  color: inherit;                     /* follow theme text */
+}
+.itemInput[readonly] {
+  opacity: 0.8;                       /* slight dimming when readonly */
+}
+
+/* Delete button */
+.deleteBtn {
+  background: transparent;
+  border: none;
+  color: #d9534f;                     /* destructive color */
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  box-sizing: border-box;
+}
+.app-container.dark .deleteBtn {
+  color: #ff6b6b;                     /* brighter red in dark mode */
+}
+
+/* Drag states */
+.listItem.sortable-chosen {
+  opacity: 0.7;
+  background: #ffd966;
+  color: #111;
+}
+.app-container.dark .listItem.sortable-chosen {
+  background: #665500;
+  color: #eee;
+}
+.listItem.sortable-ghost {
+  opacity: 0.5;
+  border: 2px dashed var(--border-light);
+  background: transparent;
+  color: inherit;
+}
+.app-container.dark .listItem.sortable-ghost {
+  border: 2px dashed var(--border-dark);
+}
+.listItem.sortable-drag {
+  opacity: 0.5;
+  transform: rotate(2deg);
+}

@@ -10,9 +10,12 @@
         <option v-for="(t, i) in itemPresets" :key="i" :value="t">{{ t }}</option>
       </select>
 
-      <button @click="addEmptyItem">✏️ Edit</button>
+    <button class="editBtn" @click="addEmptyItem">
+      <span class="icon">✏️</span>
+      Edit
+    </button>
 
-      <select v-model="selectedCondition" @change="addCondition" :disabled="condition">
+      <select v-model="selectedCondition" @change="addCondition" :disabled="!!condition">
         <option value="">Add condition…</option>
         <option v-for="(c, i) in conditionPresets" :key="i" :value="c">
           {{ c }}
