@@ -6,7 +6,7 @@
       <h3>{{ title }}</h3>
 
       <select v-model="selectedTemplate" @change="addFromTemplate">
-        <option disabled value="">Add preset…</option>
+        <option disabled value="">Voreinstellung…</option>
         <option v-for="key in Object.keys(itemPresets)" :key="key" :value="key">{{ key }}</option>
       </select>
 
@@ -16,9 +16,9 @@
     </button>
 
       <select v-model="selectedCondition" @change="addCondition" :disabled="!!condition">
-        <option value="">Add condition…</option>
-        <option v-for="(c, i) in conditionPresets" :key="i" :value="c">
-          {{ c }}
+        <option value="">Wetter</option>
+        <option v-for="key in Object.keys(conditionPresets)" :key="key" :value="key">
+          {{ key }}
         </option>
       </select>
 
@@ -80,12 +80,11 @@ const itemPresets: Record<string, string[]> = {
   "Antichrist": ["How are you?", "What's up?"]
 }
 
-
-const conditionPresets = [
-  'Condition A – always present',
-  'Condition B – always present',
-  'Condition C – always present'
-];
+const conditionPresets: Record<string, string> = {
+  'Normal':"20°C, leicht bewölkt",
+  'Nass und kalt':"5°C, Regen",
+  'Viel zu warm und trocken':"35°C, sonnig"
+};
 
 /* ---------- UI bindings ---------- */
 const selectedTemplate = ref<string>('');
@@ -120,7 +119,7 @@ function addEmptyItem(): void {
 function addCondition(): void {
   if (condition.value) return;               // only one allowed
   if (!selectedCondition.value) return;
-  condition.value = { id: -1, text: selectedCondition.value };
+  condition.value = { id: -1, text: conditionPresets[selectedCondition.value] };
   selectedCondition.value = '';
 }
 

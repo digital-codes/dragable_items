@@ -12,10 +12,10 @@
       </div>
 
       <div class="right-controls">
-    <button class="button loginBtn" @click="openLogin">
-        <span v-if="loggedIn" class="tick">✔</span>
-        Login
-      </button>
+        <button class="button loginBtn" @click="openLogin">
+          <span v-if="loggedIn" class="tick">✔</span>
+          Login
+        </button>
         <button @click="submit" class="button">Submit</button>
         <button class="button" @click="toggleTheme">
           <font-awesome-icon :icon="['fas', theme === 'light' ? 'moon' : 'sun']" />
@@ -42,11 +42,7 @@
   </div>
 
   <!-- Login popup -->
-  <LoginPopup
-    v-if="showLogin"
-    @success="handleLoginSuccess"
-    @close="showLogin = false"
-  />
+  <LoginPopup v-if="showLogin" @success="handleLoginSuccess" @close="showLogin = false" />
 
 </template>
 
@@ -69,6 +65,8 @@ const cardListRef = ref<InstanceType<typeof CardList> | null>(null);
 
 const query = ref("")
 const context = ref("No contex ...");
+
+const fullContext = ref<Array<{ id: number; key: string; value: string }>>([]);
 
 const response = ref(".. waiting for submission ..");
 
@@ -152,6 +150,23 @@ onMounted(() => {
   }
 
   applyTheme();
+
+  (async () => {
+    try {
+      const res = await fetch('/data/context.json', { cache: 'no-cache' });
+      if (!res.ok) throw new Error(`Failed to load context.json (${res.status})`);
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object') {
+        fullContext.value = data
+        console.log('Loaded context from /data/context.json', data);
+      } else {
+        console.warn('Invalid format in /data/context.json');
+      }
+    } catch (err) {
+      console.warn('Could not load /data/context.json:', err);
+    }
+  })();
+
 });
 
 function toggleTheme() {
