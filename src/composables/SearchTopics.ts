@@ -18,7 +18,7 @@ const fuseOpts: IFuseOptions<string> = {
 
 const fuse = ref<Fuse<string> | null>(null);
 
-const topics = ref<string[]>([]);
+const topics = ref<Record<string, string>>({});
 let initialized = false;
 
 /**
@@ -26,44 +26,54 @@ let initialized = false;
  * This function is used internally and should not be called directly.
  */
 function initializeTopics() {
-    topics.value = [
-        "klimawandel",
-        "nachhaltigkeit",
-        "erneuerbare energien",
-        "umweltschutz",
-        "co2-fußabdruck",
-        "energieeffizienz",
-        "baum",
-        "bäume",
-        "platane",
-        "fällen",
-        "ersetzen",
-        "pflanzen",
-        "wetter",
-        "stadt",
-        "stadtplanung",
-        "verkehr",
-        "auto",
-        "umwelt",
-        "ökologie",
-        "geht",
-        "heißt",
-        "heisst",
-        "regen",
-        "sonne",
-        "wind",
-        "warm",
-        "kalt",
-        "strasse",
-        "straße",
-        "straßen",
-        "kaiserstraße",
-        "umbau",
-        "umgestaltung",
-        "renovierung",
-    ];
-    fuse.value = new Fuse(topics.value, fuseOpts);
-    initialized = true;
+    topics.value = {
+        "klimawandel": "x",
+        "nachhaltigkeit": "x",
+        "erneuerbare energien": "x",
+        "umweltschutz": "x",
+        "co2-fußabdruck": "x",
+        "energieeffizienz": "x",
+        "baum": "x",
+        "bäume": "x",
+        "platane": "x",
+        "fällen": "x",
+        "ersetzen": "x",
+        "pflanzen": "x",
+        "wetter": "x",
+        "stadt": "x",
+        "stadtplanung": "x",
+        "verkehr": "x",
+        "auto": "x",
+        "umwelt": "x",
+        "ökologie": "x",
+        "geht": "x",
+        "heißt": "x",
+        "heisst": "x",
+        "regen": "x",
+        "sonne": "x",
+        "wind": "x",
+        "warm": "x",
+        "kalt": "x",
+        "strasse": "x",
+        "straße": "x",
+        "straßen": "x",
+        "kaiserstraße": "x",
+        "umbau": "x",
+        "umgestaltung": "x",
+        "renovierung": "x",
+        "protest": "x",
+        "demonstration": "x",
+        "aktion": "x",
+        "verhindern": "x",
+        "behindern": "x",
+        "verwaltung": "x",
+        "politik": "x",
+        "stadtverwaltung": "x",
+        "stadtpolitik": "x",
+        "gesundheit": "x",
+        "leben": "x"
+    };
+    fuse.value = new Fuse(Object.keys(topics.value), fuseOpts);  initialized = true;
 }
 
 /**
@@ -92,11 +102,16 @@ export function useSearchTopics() {
         words.forEach(word => {
             const fs = fuse.value?.search(word);
             console.log(`Fuse search for "${word}":`, fs);
-            if (topics.value.includes(word) && !categoryList.includes(word)) {
-                categoryList.push(word);
+            if (fs && fs.length > 0) {
+                fs.forEach(result => {
+                    const r = result.item;
+                    if (!categoryList.includes(r)) {
+                        categoryList.push(r);
+                    }
+                })
             }
         })
-        return categoryList
+        return categoryList.filter((item, idx, arr) => arr.indexOf(item) === idx);
     }
 
     return { search };
