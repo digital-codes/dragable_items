@@ -28,8 +28,8 @@
 
       <!-- EditFields -->
       <div class="editfields-container">
-        <EditField class="editfield" title="Query" v-model:fieldContent="query" :disabled="false" ref="queryFieldRef" button="Search"
-          @button-click="ctxSearch" />
+        <EditField class="editfield" title="Query" v-model:fieldContent="query" :disabled="false" ref="queryFieldRef"
+          button="Search" @button-click="ctxSearch" />
         <EditField class="editfield" title="Context" v-model:fieldContent="context" :disabled="true" button="Clear"
           @button-click="ctxClear" />
         <EditField class="editfield" title="Response" v-model:fieldContent="response" :disabled="true" />
@@ -108,19 +108,33 @@ const ctxClear = () => {
   }
 };
 
+onMounted(() => {
+  // Check saved preference
+  const saved = localStorage.getItem("app-theme");
+  if (saved === "light" || saved === "dark") {
+    theme.value = saved;
+  } else {
+    // Use system preference if no saved theme
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    theme.value = prefersDark ? "dark" : "light";
+  }
+
+  applyTheme();
+});
+
 function toggleTheme() {
   theme.value = theme.value === "light" ? "dark" : "light";
   localStorage.setItem("app-theme", theme.value);
+  applyTheme();
 }
 
-onMounted(() => {
-  const saved = localStorage.getItem("app-theme");
-  if (saved) {
-    theme.value = saved;
+function applyTheme() {
+  const appContainer = document.querySelector(".app-container");
+  if (appContainer) {
+    appContainer.classList.remove("light", "dark");
+    appContainer.classList.add(theme.value);
   }
-});
-
+}
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
