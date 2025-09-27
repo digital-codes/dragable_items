@@ -21,6 +21,9 @@ import { watch } from "vue";
 import CardList from "./components/CardList.vue";
 import EditField from "./components/EditField.vue";
 
+import { useSearchTopics, getAllTopics } from './composables/SearchTopics';
+const { search } = useSearchTopics()
+
 const cardListRef = ref<InstanceType<typeof CardList> | null>(null);
 
 const query = ref("")
@@ -61,9 +64,11 @@ const ctxSearch = () => {
   // Example action: prepend "Searching for: " to the query field content
   if (query.value !== "") {
     context.value = "Searching for: " + (query.value || "");
+    const results = search(query.value);
+    console.log("Search results:", results);
     response.value = ".. waiting for submission ..";
     setTimeout(() => {
-      context.value = "This is a simulated context response based on the query and card list.";
+      context.value = results.length > 0 ? "Results: " + results.join(", ") : "No results found.";
     }, 2000);
   }
 };
