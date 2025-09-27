@@ -1,0 +1,18 @@
+[
+    {"biology": "Cell membranes regulate transport between a cell's interior and its environment."},
+    {"biology": "DNA sequences encode genes that guide protein synthesis and inheritance."},
+    {"biology": "Photosynthesis in plants converts light energy into chemical energy."},
+    {"politics": "Elections select public officials through voting and established rules."},
+    {"politics": "Legislation is debated and enacted by representative institutions."},
+    {"politics": "Political institutions and norms shape how power is distributed and exercised."},
+    {"activism": "Grassroots campaigns mobilize communities around shared concerns."},
+    {"activism": "Nonviolent protest and advocacy can shift public awareness and policy agendas."},
+    {"activism": "Digital organizing leverages online tools to coordinate supporters and actions."},
+    {"climate": "Rising greenhouse gas concentrations are associated with global warming."},
+    {"climate": "Changes in temperature and precipitation patterns affect ecosystems and societies."},
+    {"nature": "Old-growth forests provide habitat complexity and store significant carbon."},
+    {"nature": "Wetlands act as natural filters and support high biodiversity."},
+    {"condition": "Chronic conditions typically require long-term management and follow-up."},
+    {"condition": "Acute conditions often demand immediate medical attention and stabilization."},
+    {"condition": "Environmental conditions like temperature and moisture influence species ranges."}
+]

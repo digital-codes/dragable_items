@@ -38,6 +38,7 @@ function initializeTopics() {
         "bäume": "nature",
         "platane": "nature",
         "fällen": "politics",
+        "gefällt": "politics",
         "ersetzen": "politics",
         "pflanzen": "nature",
         "wetter": "climate",

@@ -12,7 +12,7 @@ const matchMatrix = [
     { "activism": { "politics": true, "climate": true, "nature": true } },
 ]
 
-function getClasses(features: string[]): string[] {
+export function getClasses(features: string[]): string[] {
     const featureSet = new Set(features);
     const classes = new Set<string>();
 
