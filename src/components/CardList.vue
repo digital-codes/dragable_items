@@ -7,7 +7,7 @@
 
       <select v-model="selectedTemplate" @change="addFromTemplate">
         <option disabled value="">Add preset…</option>
-        <option v-for="(t, i) in itemPresets" :key="i" :value="t">{{ t }}</option>
+        <option v-for="key in Object.keys(itemPresets)" :key="key" :value="key">{{ key }}</option>
       </select>
 
     <button class="editBtn" @click="addEmptyItem">
@@ -73,7 +73,14 @@ const items = ref<ListItemData[]>([]);
 const condition = ref<ListItemData | null>(null);
 
 /* ---------- Presets ---------- */
-const itemPresets = ['First preset line', 'Second preset line', 'Third preset line'];
+
+const itemPresets: Record<string, string[]> = {
+  "Aktivist": ["Hello", "Hi", "Hey there"],
+  "Alchimist": ["Best regards", "Cheers", "Take care"],
+  "Antichrist": ["How are you?", "What's up?"]
+}
+
+
 const conditionPresets = [
   'Condition A – always present',
   'Condition B – always present',
@@ -89,10 +96,21 @@ function addItem(text: string = ''): void {
   items.value.push({ id: nextId++, text });
 }
 
-function addFromTemplate(): void {
-  if (!selectedTemplate.value) return;
-  addItem(selectedTemplate.value);
-  selectedTemplate.value = '';
+
+function addFromTemplate() {
+  const presetKey = selectedTemplate.value
+  if (!presetKey || !itemPresets[presetKey]) return
+
+  // Add each string as a new item
+  itemPresets[presetKey].forEach(str => {
+    items.value.push({
+      id: nextId++,
+      text: str,
+    })
+  })
+
+  // Reset selection
+  selectedTemplate.value = ""
 }
 
 function addEmptyItem(): void {
