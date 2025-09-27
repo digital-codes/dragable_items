@@ -128,7 +128,7 @@ export function getAllTopics(): string[] {
     if (!initialized) {
         initializeTopics();
     }
-    return topics.value;
+    return Object.keys(topics.value);
 }
 
 /*
