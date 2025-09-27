@@ -33,7 +33,7 @@ async function onSubmit() {
     return
   }
   try {
-    const res = await fetch("/php/llamaLogin.php", {
+    const res = await fetch("php/llamaLogin.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: "any",password: code.value }),

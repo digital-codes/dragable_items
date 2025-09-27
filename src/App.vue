@@ -34,7 +34,7 @@
       <div class="editfields-container">
         <EditField class="editfield" title="Query" v-model:fieldContent="query" :disabled="false" ref="queryFieldRef"
           button="Search" @button-click="ctxSearch" />
-        <EditField class="editfield" title="Context" v-model:fieldContent="context" :disabled="true" button="Clear"
+        <EditField class="editfield" title="Context" v-model:fieldContent="context" :disabled="false" button="Clear"
           @button-click="ctxClear" />
         <EditField class="editfield" title="Response" v-model:fieldContent="response" :disabled="true" />
       </div>
@@ -113,10 +113,6 @@ const submit = () => {
   }
   const cd = cardListRef.value?.getConditions()?.trim() ?? null;
   console.log("Conditions:", cd);
-  if (cd && cd.length > 0) {
-    context.value += "\n" + cd;
-    console.log("Including conditions in prompt.");
-  }
   console.log("Context:", context.value);
   loading.value = true;
   statusText.value = "Loading...";
@@ -132,10 +128,10 @@ const submit = () => {
       const payload = {
         query: q,
         prompt: p,
-        context: context.value
+        context: (cd && cd.length > 0) ? context.value  + "\n" + cd : context.value
       };
       statusText.value = "Sending request…";
-      const res = await fetch("/php/llamaChat.php", {
+      const res = await fetch("php/llamaChat.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -216,7 +212,7 @@ const ctxSearch = () => {
 const ctxClear = () => {
   console.log("Clear button clicked.");
   if (context.value) {
-    context.value = "No context ...";
+    context.value = "";
     response.value = ".. waiting for submission ..";
   }
 };
@@ -236,7 +232,7 @@ onMounted(() => {
 
   (async () => {
     try {
-      const res = await fetch('/data/context.json', { cache: 'no-cache' });
+      const res = await fetch('data/context.json', { cache: 'no-cache' });
       if (!res.ok) throw new Error(`Failed to load context.json (${res.status})`);
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object') {
