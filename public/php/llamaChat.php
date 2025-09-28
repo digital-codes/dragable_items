@@ -64,15 +64,6 @@ if (!file_exists($iniPath)) {
     exit;
 }
 
-$configLlm = parse_ini_file($iniPath, true)['REMOTE'] ?? null;
-
-if (!$configLlm) {
-    logError("Invalid config format in $iniPath", $logFile);
-    http_response_code(500);
-    echo json_encode(['error' => 'Invalid config format']);
-    exit;
-}
-
 // ----------
 
 $data = json_decode(file_get_contents('php://input'), true);
@@ -132,7 +123,21 @@ if (isset($data['context'])) {
     $userQuery = "Die Frage lautet:" . PHP_EOL  . $userQuery . PHP_EOL;
 }   
 
+// use local llm if user == "any"
+if ($user === "any") {
+    $configLlm = parse_ini_file($iniPath, true)['LOCAL'] ?? null;
+    logError("Local LLM requested due to user ANY", $logFile);
+} else {
+    logError("User is $user, using remote llm", $logFile);
+    $configLlm = parse_ini_file($iniPath, true)['REMOTE'] ?? null;
+}
 
+if (!$configLlm) {
+    logError("Invalid config format in $iniPath", $logFile);
+    http_response_code(500);
+    echo json_encode(['error' => 'Invalid config format']);
+    exit;
+}
 
 // Call the remote LLM API
 $apiKey = $configLlm['apiKey'];

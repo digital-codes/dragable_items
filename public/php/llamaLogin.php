@@ -50,14 +50,35 @@ $basedir = rtrim($basedir, "/\\") . '/';
 // cors proxy login
 // Define the CSV file path
 // $csv_file = 'users.csv';
-// on localhost we just force a token
+// on localhost we can use simple credentials
 $csv_file = "{$basedir}users.csv";
 $public_file = "{$basedir}public.pem";
 $private_file = "{$basedir}private.pem";
-$init_file = "{$basedir}access.ini";
+$access_file = "{$basedir}access.ini";
+// overwrite files on localhost
+if (($_SERVER === null) || ($_SERVER['SERVER_NAME'] === 'localhost') || ($_SERVER['REMOTE_ADDR'] === '127.0.0.1')) {
+  $csv_file = "./users.csv";    
+  $public_file = "./public.pem";
+  $private_file = "./private.pem";
+  $access_file = "./access.ini";
+}
 
-// Define the jti claim for JWT
-$jti_claim = "lmö wlmdwölk  qfqwlknfqwklf ";
+function getJtiClaim() {
+  global $access_file;
+  $access = @parse_ini_file($access_file, true, INI_SCANNER_TYPED);
+  if ($access === false) {
+      http_response_code(500);
+      echo json_encode(["error" => "Internal server error (no access file)"]);
+      exit;
+    }
+  if (empty($access['JTI'])) {
+      http_response_code(500);
+      echo json_encode(["error" => "Internal server error (no jti)"]);
+      exit;
+  }
+  // set claim
+  return trim((string)$access['JTI']);
+}
 
 
 function sanitizeUsername($username) {
@@ -104,6 +125,14 @@ function parseToken($token) {
       die();
   }
   assert($tok instanceof UnencryptedToken);
+  // check jti claim
+  $jti = getJtiClaim();
+  if ($tok->claims()->get('jti') !== $jti) {
+      http_response_code(401);
+      echo json_encode(array("error" => "Invalid username or password (JTI)"));
+      die();
+  }
+
   $user = $tok->claims()->get('uid'); 
   //echo("User: " . $user . PHP_EOL);
   return $user;
@@ -111,7 +140,6 @@ function parseToken($token) {
 }
 
 function checkToken($token,$publicKey) {
-  global $jti_claim;
   $parser = new Parser(new JoseEncoder());
   $tok = $parser->parse($token);
 
@@ -138,11 +166,10 @@ function checkToken($token,$publicKey) {
 
 // https://lcobucci-jwt.readthedocs.io/en/4.3.0/issuing-tokens/  
 function makeToken($username) {
-  global $public_file, $private_file, $jti_claim;
+  global $public_file, $private_file;
 
   //echo("Files: " . $public_file . PHP_EOL);
   // read public and private key
-  $publicKey = file_get_contents($public_file);
   $privateKey = file_get_contents($private_file);
 
   //echo( "Public:" . $publicKey . PHP_EOL);
@@ -159,7 +186,7 @@ function makeToken($username) {
       // Configures the audience (aud claim)
       ->permittedFor('https://llama.ok-lab-karlsruhe.de')
       // Configures the id (jti claim)
-      ->identifiedBy($jti_claim)
+      ->identifiedBy(getJtiClaim())
       // Configures the time that the token was issue (iat claim)
       ->issuedAt($now)
       // Configures the time that the token can be used (nbf claim)
@@ -177,55 +204,7 @@ function makeToken($username) {
 }
 
 function login() {
-    global $csv_file, $public_file, $private_file, $token_exp_time, $jti_claim, $init_file;
-    // check if we are running on localhost. forced login then
-    //echo("Server:" . ($_SERVER === null)?"null":"x" . PHP_EOL);
-    if (($_SERVER === null) || ($_SERVER['SERVER_NAME'] === 'localhost') || ($_SERVER['REMOTE_ADDR'] === '127.0.0.1')) {
-      $csv_file = "./users.csv";    
-      $public_file = "./public.pem";
-      $private_file = "./private.pem";
-      $init_file = "./access.ini";
-      $ini = @parse_ini_file($init_file, true, INI_SCANNER_TYPED);
-      if ($ini === false) {
-          http_response_code(500);
-          echo json_encode(["error" => "Internal server error (no access file)"]);
-          return;
-        }
-      if (empty($ini['JTI'])) {
-          http_response_code(500);
-          echo json_encode(["error" => "Internal server error (no jti)"]);
-          return;
-      }
-      // set claim 
-      $jti_claim = trim((string)$ini['JTI']);
-      // check for FORCECHECK in $ini (top-level or inside any section)
-      $forceCheck = false;
-      if (array_key_exists('FORCECHECK', $ini)) {
-        $forceCheck = (bool)$ini['FORCECHECK'];
-      } 
-
-      if (!$forceCheck) {
-        $token = makeToken("LOCALHOST"); //JWT::encode($payload, $secret_key);
-        $publicKey = file_get_contents($public_file);
-        checkToken($token,$publicKey); // throws on error here 
-        echo json_encode(array("token" => $token,"key" => $publicKey));
-        return;
-      }
-    }
-
-    $ini = @parse_ini_file($init_file, true, INI_SCANNER_TYPED);
-    if ($ini === false) {
-        http_response_code(500);
-        echo json_encode(["error" => "Internal server error (no access file)"]);
-        return;
-      }
-    if (empty($ini['JTI'])) {
-        http_response_code(500);
-        echo json_encode(["error" => "Internal server error (no jti)"]);
-        return;
-    }
-    // set claim 
-    $jti_claim = trim((string)$ini['JTI']);
+    global $csv_file, $public_file, $private_file, $token_exp_time, $jti_claim, $access_file;
 
     // Extract the username and password from the request
     $params = extractUsernameAndPassword();
@@ -274,7 +253,7 @@ function login() {
     
     // If we reach this point, the username or password is invalid
     http_response_code(401);
-    echo json_encode(array("error" => "Invalid username or password"));
+    echo json_encode(array("error" => "Invalid username or password (final)"));
     }
 
     login();

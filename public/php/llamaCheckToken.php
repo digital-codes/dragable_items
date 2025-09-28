@@ -49,25 +49,25 @@ function getConfig($local = false)
 
 
     $public_file = "{$basedir}public.pem";
-    $init_file = "{$basedir}access.ini";
+    $access_file = "{$basedir}access.ini";
     if ($local) {
         $public_file = "./public.pem";
-        $init_file = "./access.ini";
+        $access_file = "./access.ini";
     }
     try {
         $publicKey = file_get_contents($public_file);
     } catch (Exception $e) {
         return [null, null];
     }
-    $ini = @parse_ini_file($init_file, true, INI_SCANNER_TYPED);
-    if ($ini === false) {
+    $access = @parse_ini_file($access_file, true, INI_SCANNER_TYPED);
+    if ($access === false) {
         return [null, null];
     }
-    if (empty($ini['JTI'])) {
+    if (empty($access['JTI'])) {
         return [null, null];
     }
     // Define the jti claim for JWT
-    $jti_claim = trim((string) $ini['JTI']);
+    $jti_claim = trim((string) $access['JTI']);
 
     return [$publicKey, $jti_claim];
 }

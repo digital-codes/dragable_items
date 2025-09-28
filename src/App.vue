@@ -151,7 +151,7 @@ const llmCall = async (p: string, ctx: string, cnd: string, q: string) => {
 
 
 const submit = async () => {
-  response.value = ".. waiting for response .."
+  response.value = ".. Warte auf Antwort .."
   console.log("Submitting data:");
   const q = query.value.trim();
   console.log("Query:", q);
@@ -195,7 +195,7 @@ const ctxSearch = async () => {
   console.log("Search button clicked. Current query:", query.value);
   // Example action: prepend "Searching for: " to the query field content
   if (query.value !== "") {
-    queryComments.value = "Suche nach: " + (query.value || "");
+    queryComments.value = "";
     loading.value = true;
     statusText.value = "Suche ...";
     let classes: string[] = [];
@@ -225,7 +225,11 @@ const ctxSearch = async () => {
       // item expected like { "category1": "value" } (possibly multiple keys)
       console.log("Checking item:", item);
       return Object.entries(item)
-        .filter(([k]) => classes.includes(k))
+        .filter(([k]) => {
+          const norm = (s: unknown) =>
+            String(s).replace(/^["']+|["']+$/g, "").trim().toLowerCase();
+          return classes.some(c => norm(c) === norm(k));
+        })
         .map(([, v]) => `${v}\n`);
     });
     //console.log("Matched context:", matchedContext);
