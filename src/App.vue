@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import { watch } from "vue";
 import CardList from "./components/CardList.vue";
 import EditField from "./components/EditField.vue";
@@ -59,6 +59,7 @@ const { search } = useSearchTopics()
 import { getTopicClass } from './composables/SearchTopics';
 
 import { contextMatch } from './services/ContextMatch';
+import { RefSymbol } from "@vue/reactivity";
 
 
 const showLogin = ref(false)
@@ -100,6 +101,57 @@ function handleLoginSuccess(token: string) {
   showLogin.value = false
 }
 
+const llmCall = async (p: string, ctx: string, cnd: string, q: string) => {
+  // Placeholder for LLM call logic
+  console.log("LLM call initiated");
+    try {
+      const token = localStorage.getItem("auth-token");
+      const payload: { query: string; prompt: string; context?: string } = {
+        query: q,
+        prompt: p
+      };
+      if (ctx) {
+        payload.context = (cnd && cnd.length > 0) ? ctx + "\n" + cnd : ctx
+      }
+      statusText.value = "Sende Anfrage …";
+      const res = await fetch("php/llamaChat.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Request failed (${res.status}): ${errText}`);
+      }
+
+      // try parse JSON, fall back to text
+      let body: any;
+      try {
+        body = await res.json();
+      } catch {
+        body = await res.text();
+      }
+
+      loading.value = false;
+      statusText.value = "Fertig";
+
+      if (!body || !body.text) {
+        return null
+      } else {
+        console.log("Submit success:", body);
+        return String(body.text);
+      }
+    } catch (err: any) {
+      console.error("Submit error:", err);
+      loading.value = false;
+      statusText.value = "Error";
+      return null
+    }
+};
 
 
 const submit = async() => {
@@ -133,6 +185,21 @@ const submit = async() => {
     response.value = "Please log in to submit your query.";
     return;
   }
+  let results: string[] = [];
+  // for llm, build the call params
+  const r = await llmCall(p , context.value?context.value:"", cd?cd:"", q);
+  loading.value = false;
+  if (typeof r === "string") {
+    statusText.value = "Fertig";
+    response.value = r.trim()
+    console.log("LLM chat results:", results);
+  } else {
+    response.value = ""
+    statusText.value = "Kein Ergebnis";
+    console.log("LLM chat returned non-string:", r);
+  }
+
+  /*
   (async () => {
     try {
       const token = localStorage.getItem("auth-token");
@@ -178,19 +245,35 @@ const submit = async() => {
       statusText.value = "Error";
       response.value = err?.message ?? String(err);
     }
-  })();
+  })// ();
+  */
+
 };
 
 const ctxSearch = async () => {
   console.log("Search button clicked. Current query:", query.value);
   // Example action: prepend "Searching for: " to the query field content
   if (query.value !== "") {
-    context.value = "Searching for: " + (query.value || "");
+    queryComments.value = "Suche nach: " + (query.value || "");
     loading.value = true;
-    statusText.value = "Searching...";
-    const results = search(query.value);
+    statusText.value = "Suche ...";
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 1000)); // slight delay to show spinner
+
+    let results: string[] = [];
+    // for llm, build the call params
+    if (classifier?.value) {
+      const r = await llmCall(classifier?.value , "", "", query.value);
+      if (typeof r === "string") {
+        results = r.split(",").map(s => s.trim()).filter(s => s.length > 0);
+        console.log("LLM classification results:", results);
+      } else {
+        console.log("LLM classification returned non-string:", r);
+      }
+    }
+    // const results = search(query.value);
     console.log("Search results:", results);
-    if (results.length === 0) {
+    if (results.length === 0 || (results.length === 1 && results[0] === "unrelated")) {
       context.value = "";
       loading.value = false;
       statusText.value = "Nichts gefunden";
