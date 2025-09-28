@@ -73,7 +73,7 @@ const context = ref("Nichts ...");
 
 const classifier = ref<string | null>(null);
 
-const fullContext = ref<Array<{ id: number; key: string; value: string }>>([]);
+const fullContext = ref<Array<Record<string, string>>>([]);
 
 const response = ref(".. warte auf Absenden ..");
 
@@ -199,55 +199,6 @@ const submit = async() => {
     console.log("LLM chat returned non-string:", r);
   }
 
-  /*
-  (async () => {
-    try {
-      const token = localStorage.getItem("auth-token");
-      const payload = {
-        query: q,
-        prompt: p,
-        context: (cd && cd.length > 0) ? context.value  + "\n" + cd : context.value
-      };
-      statusText.value = "Sending request…";
-      const res = await fetch("php/llamaChat.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(`Request failed (${res.status}): ${errText}`);
-      }
-
-      // try parse JSON, fall back to text
-      let body: any;
-      try {
-        body = await res.json();
-      } catch {
-        body = await res.text();
-      }
-
-      loading.value = false;
-      statusText.value = "Fertig";
-      if (body && typeof body === "object" && "text" in body) {
-        response.value = String(body.text);
-      } else {
-        response.value = String(body ?? "No response body");
-      }
-      console.log("Submit success:", body);
-    } catch (err: any) {
-      console.error("Submit error:", err);
-      loading.value = false;
-      statusText.value = "Error";
-      response.value = err?.message ?? String(err);
-    }
-  })// ();
-  */
-
 };
 
 const ctxSearch = async () => {
@@ -260,20 +211,18 @@ const ctxSearch = async () => {
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 1000)); // slight delay to show spinner
 
-    let results: string[] = [];
+    let classes: string[] = [];
     // for llm, build the call params
     if (classifier?.value) {
       const r = await llmCall(classifier?.value , "", "", query.value);
       if (typeof r === "string") {
-        results = r.split(",").map(s => s.trim()).filter(s => s.length > 0);
-        console.log("LLM classification results:", results);
+        classes = r.split(",").map(s => s.trim()).filter(s => s.length > 0);
+        console.log("LLM classification results:", classes);
       } else {
         console.log("LLM classification returned non-string:", r);
       }
     }
-    // const results = search(query.value);
-    console.log("Search results:", results);
-    if (results.length === 0 || (results.length === 1 && results[0] === "unrelated")) {
+    if (classes.length === 0 || (classes.length === 1 && classes[0] === "unrelated")) {
       context.value = "";
       loading.value = false;
       statusText.value = "Nichts gefunden";
@@ -281,13 +230,20 @@ const ctxSearch = async () => {
       response.value = ".. waiting for submission ..";
       return;
     }
-    const classes = Array.from(new Set(results.map(r => getTopicClass(r)).filter(Boolean)));
-    console.log("Result classes:", classes);    
+    console.log("Result classes:", classes);
     queryComments.value = `Gefundene Themen: ${classes.join(", ")}`;
-    const matchedContext = contextMatch(classes, fullContext.value);
-    console.log("Matched context:", matchedContext);
-    if (matchedContext) {
-      context.value = matchedContext;
+
+    // Keep only context items whose key matches one of the found classes
+    const matchedContext = fullContext.value.flatMap(item => {
+      // item expected like { "category1": "value" } (possibly multiple keys)
+      console.log("Checking item:", item);
+      return Object.entries(item)
+        .filter(([k]) => classes.includes(k))
+        .map(([k, v]) => `${v}\n`);
+    });
+    //console.log("Matched context:", matchedContext);
+    if (matchedContext.length > 0) {
+      context.value = matchedContext.join("\n");
       statusText.value = "Fertig";
     } else {
       context.value = "";
