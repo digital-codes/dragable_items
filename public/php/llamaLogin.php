@@ -28,16 +28,33 @@ use Lcobucci\Clock\SystemClock;
 
 require 'vendor/autoload.php';
 
-// upgrade to public key
+$basedirFile = __DIR__ . '/basedir.txt';
+$basedir = '/var/www/files/';
 
+if (is_readable($basedirFile)) {
+  $contents = @file_get_contents($basedirFile);
+  if ($contents !== false) {
+    $contents = trim($contents);
+    // remove surrounding quotes if present
+    $contents = trim($contents, "\"' \t\n\r\0\x0B");
+    if ($contents !== '') {
+      $basedir = $contents;
+    }
+  }
+}
+// ensure trailing slash
+$basedir = rtrim($basedir, "/\\") . '/';
+
+
+// upgrade to public key
 // cors proxy login
 // Define the CSV file path
 // $csv_file = 'users.csv';
 // on localhost we just force a token
-$csv_file = "/home/akugel/files/llama/users.csv";
-$public_file = "/home/akugel/files/llama/public.pem";
-$private_file = "/home/akugel/files/llama/private.pem";
-$init_file = "/home/akugel/files/llama/access.ini";
+$csv_file = "{$basedir}users.csv";
+$public_file = "{$basedir}public.pem";
+$private_file = "{$basedir}private.pem";
+$init_file = "{$basedir}access.ini";
 
 // Define the jti claim for JWT
 $jti_claim = "lmö wlmdwölk  qfqwlknfqwklf ";

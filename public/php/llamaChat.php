@@ -18,6 +18,23 @@ function logError($message, $logFile)
     file_put_contents($logFile, $entry, FILE_APPEND);
 }
 
+$basedirFile = __DIR__ . '/basedir.txt';
+$basedir = '/var/www/files/';
+
+if (is_readable($basedirFile)) {
+  $contents = @file_get_contents($basedirFile);
+  if ($contents !== false) {
+    $contents = trim($contents);
+    // remove surrounding quotes if present
+    $contents = trim($contents, "\"' \t\n\r\0\x0B");
+    if ($contents !== '') {
+      $basedir = $contents;
+    }
+  }
+}
+// ensure trailing slash
+$basedir = rtrim($basedir, "/\\") . '/';
+
 
 // don't set     
 // header('Access-Control-Allow-Origin: *');
@@ -39,7 +56,7 @@ if ($clientIp === '127.0.0.1' || $clientIp === '::1') {
 }
 
 // parse init
-$iniPath = $isLocal ? './config.ini' : '/var/www/files/llama/config.ini';
+$iniPath = $isLocal ? './config.ini' : "{$basedir}config.ini";
 if (!file_exists($iniPath)) {
     logError("Missing ini file: $iniPath", $logFile);
     http_response_code(500);
@@ -61,13 +78,26 @@ if (!$configLlm) {
 $data = json_decode(file_get_contents('php://input'), true);
 
 // Check if the request has an Authorization header
-if (!isset($_SERVER['HTTP_AUTHORIZATION'])) {
+$authHeader = null;
+
+if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
+} elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+    $authHeader = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+} elseif (function_exists('apache_request_headers')) {
+    $headers = apache_request_headers();
+    if (isset($headers['Authorization'])) {
+        $authHeader = $headers['Authorization'];
+    }
+}
+
+if (!$authHeader) {
     http_response_code(401);
-    exit('Unauthorized');
+    exit('Unauthorized (no Authorization header)');
 }
 
 // Get the token from the Authorization header
-$token = str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']);
+$token = str_replace('Bearer ', '', $authHeader);
 
 try {
     $user = parseToken($token, $isLocal);
@@ -105,10 +135,10 @@ if (isset($data['context'])) {
 
 
 // Call the remote LLM API
-$apiKey = $configLlm['api_key'];
+$apiKey = $configLlm['apiKey'];
 $model = $configLlm['llmodel'];
 $url = $configLlm['llurl'];
-logError("Using remote LLM API at $url", $logFile);
+logError("Using remote LLM API at $url, model $model", $logFile);
 
 // Call the function
 $response = remoteQuery($apiKey, $model, $url, $systemPrompt, $userQuery);

@@ -30,8 +30,26 @@ require 'vendor/autoload.php';
 
 function getConfig($local = false)
 {
-    $public_file = "/home/akugel/files/llama/public.pem";
-    $init_file = "/home/akugel/files/llama/access.ini";
+    $basedirFile = __DIR__ . '/basedir.txt';
+    $basedir = '/var/www/files/';
+
+    if (is_readable($basedirFile)) {
+    $contents = @file_get_contents($basedirFile);
+    if ($contents !== false) {
+        $contents = trim($contents);
+        // remove surrounding quotes if present
+        $contents = trim($contents, "\"' \t\n\r\0\x0B");
+        if ($contents !== '') {
+        $basedir = $contents;
+        }
+    }
+    }
+    // ensure trailing slash
+    $basedir = rtrim($basedir, "/\\") . '/';
+
+
+    $public_file = "{$basedir}public.pem";
+    $init_file = "{$basedir}access.ini";
     if ($local) {
         $public_file = "./public.pem";
         $init_file = "./access.ini";

@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
-    "build-subdir": "vue-tsc && vite build -c vite-subdir.config.ts",
-    "preview": "vite preview",
+    "build-subdir": "vue-tsc && vite build -c vite-subdir.config.ts && rm dist/php/access.ini && rm dist/php/basedir.txt && rm dist/php/composer.lock && rm -rf dist/php/vendor",
+    "preview": "vite preview && rm dist/php/composer.lock && rm dist/php/access.ini && rm dist/php/basedir.txt && rm -rf dist/php/vendor",
     "test": "vitest"
   },
   "dependencies": {
