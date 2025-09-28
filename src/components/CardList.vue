@@ -5,14 +5,14 @@
     <div class="cardHeader">
       <h3>{{ title }}</h3>
 
-      <select v-model="selectedTemplate" @change="addFromTemplate">
-        <option disabled value="">Voreinstellung…</option>
+      <select v-if="itemPresets" v-model="selectedTemplate" @change="addFromTemplate">
+        <option disabled value="">Auswahl</option>
         <option v-for="key in Object.keys(itemPresets)" :key="key" :value="key">{{ key }}</option>
       </select>
 
     <button class="editBtn" @click="addEmptyItem">
       <span class="icon">✏️</span>
-      Edit
+      Neu
     </button>
 
       <select v-model="selectedCondition" @change="addCondition" :disabled="!!condition">
@@ -25,6 +25,7 @@
     </div>
 
     <!-- ===== Draggable list ===== -->
+     <div class="carditemContainer">
     <draggable
       v-model="items"
       :group="{ name: 'items', pull: true, put: true }"
@@ -46,11 +47,12 @@
       fixed
       @delete="removeCondition"
     />
+    </div> 
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import draggable from 'vuedraggable';
 import ListItem from './ListItem.vue';
 
@@ -74,16 +76,14 @@ const condition = ref<ListItemData | null>(null);
 
 /* ---------- Presets ---------- */
 
-const itemPresets: Record<string, string[]> = {
-  "Aktivist": ["Hello", "Hi", "Hey there"],
-  "Alchimist": ["Best regards", "Cheers", "Take care"],
-  "Antichrist": ["How are you?", "What's up?"]
-}
+// actual values loaded in onmounted
+const itemPresets = ref<Record<string, string[]> | null>(null);
 
 const conditionPresets: Record<string, string> = {
-  'Normal':"20°C, leicht bewölkt",
-  'Nass und kalt':"5°C, Regen",
-  'Viel zu warm und trocken':"35°C, sonnig"
+  'Normal':"Das Wetter ist völlig normal für die Jahreszeit",
+  'Nass und kalt':"Es ist zu kalt und zu nass für die Jahreszeit",
+  'Heiß und trocken':"Es ist zu heiß und trocken für die Jahreszeit",
+  'Heiß und feucht':"Es ist heiß und feucht. Das ist nicht normal."
 };
 
 /* ---------- UI bindings ---------- */
@@ -98,15 +98,21 @@ function addItem(text: string = ''): void {
 
 function addFromTemplate() {
   const presetKey = selectedTemplate.value
-  if (!presetKey || !itemPresets[presetKey]) return
+  if (!presetKey || !itemPresets.value?.[presetKey]) return
 
   // Add each string as a new item
-  itemPresets[presetKey].forEach(str => {
-    items.value.push({
-      id: nextId++,
-      text: str,
-    })
-  })
+      // ensure the presets have been loaded
+      const ip = itemPresets.value
+      if (!ip) return
+      const preset = ip[presetKey]
+      if (!preset) return
+  
+      preset.forEach(str => {
+        items.value.push({
+          id: nextId++,
+          text: str,
+        })
+      })
 
   // Reset selection
   selectedTemplate.value = ""
@@ -137,6 +143,28 @@ function getCombinedText(): string {
   //if (condition.value) parts.push(condition.value.text); // separate
   return parts.join('\n');
 }
+
+onMounted(async () => {
+  try {
+    const response = await fetch('data/prompts.json');
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const prompts = await response.json();
+    // Convert each prompt (a string) into an array of non-empty trimmed lines
+    itemPresets.value = Object.fromEntries(
+      Object.entries(prompts || {}).map(([key, val]) => [
+      key,
+      (typeof val === 'string' ? val : String(val))
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+      ])
+    );
+    console.log("Loaded item presets:", itemPresets.value);
+  } catch (error) {
+    console.error("Failed to load item presets:", error);
+    itemPresets.value = {}; // fallback to empty
+  }
+});
 
 
 /* Expose the getter for a possible parent component */

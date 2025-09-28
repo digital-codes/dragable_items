@@ -4,7 +4,7 @@
     <!-- static class for the drag‑handle (cursor handled in global CSS) -->
     <span v-if="!fixed" class="drag-handle">☰</span>
 
-    <input
+    <textarea
       :value="modelValue"
       @input="onInput"
       :readonly="fixed"
@@ -40,12 +40,4 @@ function onInput(event: Event) {
 
 <!-- Non‑module CSS for the drag‑handle cursor -->
 <style>
-.drag-handle {
-  cursor: grab;
-  margin-right: 0.5rem;
-  user-select: none;
-}
-.drag-handle:active {
-  cursor: grabbing;
-}
 </style>

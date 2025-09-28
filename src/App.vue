@@ -16,7 +16,7 @@
           <span v-if="loggedIn" class="tick">✔</span>
           Login
         </button>
-        <button @click="submit" class="button">Submit</button>
+        <button @click="submit" class="button">Absenden</button>
         <button class="button" @click="toggleTheme">
           <font-awesome-icon :icon="['fas', theme === 'light' ? 'moon' : 'sun']" />
         </button>
@@ -32,11 +32,11 @@
 
       <!-- EditFields -->
       <div class="editfields-container">
-        <EditField class="editfield" title="Query" v-model:fieldContent="query" :disabled="false" ref="queryFieldRef"
-          button="Search" @button-click="ctxSearch" :comments="queryComments"/>
-        <EditField class="editfield" title="Context" v-model:fieldContent="context" :disabled="false" button="Clear"
+        <EditField class="editfield" title="Frage" v-model:fieldContent="query" :disabled="false" ref="queryFieldRef"
+          button="Suche" @button-click="ctxSearch" :comments="queryComments"/>
+        <EditField class="editfield" title="Kontext" v-model:fieldContent="context" :disabled="false" button="Löschen"
           @button-click="ctxClear" />
-        <EditField class="editfield" title="Response" v-model:fieldContent="response" :disabled="true" />
+        <EditField class="editfield" title="Antwort" v-model:fieldContent="response" :disabled="true" />
       </div>
     </div>
   </div>
@@ -68,14 +68,16 @@ const cardListRef = ref<InstanceType<typeof CardList> | null>(null);
 
 const query = ref("")
 const queryComments = ref<string | null>(null)
-const context = ref("No contex ...");
+const context = ref("Nichts ...");
+
+const classifier = ref<string | null>(null);
 
 const fullContext = ref<Array<{ id: number; key: string; value: string }>>([]);
 
-const response = ref(".. waiting for submission ..");
+const response = ref(".. warte auf Absenden ..");
 
 const loading = ref(false);
-const statusText = ref("Idle");
+const statusText = ref("Gelangweilt");
 const theme = ref("light");
 
 
@@ -100,7 +102,7 @@ function handleLoginSuccess(token: string) {
 
 
 
-const submit = () => {
+const submit = async() => {
   response.value = ".. waiting for response .."
   console.log("Submitting data:");
   const q = query.value.trim();
@@ -112,8 +114,16 @@ const submit = () => {
     response.value = "Please add some prompt text before submitting.";
     return;
   }
-  const cd = cardListRef.value?.getConditions()?.trim() ?? null;
+  let cd = cardListRef.value?.getConditions()?.trim() ?? null;
   console.log("Conditions:", cd);
+  if (cd) {
+    console.log("Using conditions:", cd);
+    const weather = await getWeather();
+    if (weather) {
+      console.log("Appending weather to context:", weather);
+      cd = weather + "\n" + cd;
+    }
+  }
   console.log("Context:", context.value);
   loading.value = true;
   statusText.value = "Loading...";
@@ -155,7 +165,7 @@ const submit = () => {
       }
 
       loading.value = false;
-      statusText.value = "Done";
+      statusText.value = "Fertig";
       if (body && typeof body === "object" && "text" in body) {
         response.value = String(body.text);
       } else {
@@ -171,7 +181,7 @@ const submit = () => {
   })();
 };
 
-const ctxSearch = () => {
+const ctxSearch = async () => {
   console.log("Search button clicked. Current query:", query.value);
   // Example action: prepend "Searching for: " to the query field content
   if (query.value !== "") {
@@ -195,20 +205,13 @@ const ctxSearch = () => {
     console.log("Matched context:", matchedContext);
     if (matchedContext) {
       context.value = matchedContext;
-      statusText.value = "Done";
+      statusText.value = "Fertig";
     } else {
       context.value = "";
       statusText.value = "Nichts gefunden";
     }
     loading.value = false;
-    response.value = ".. waiting for submission ..";
-    /*
-    setTimeout(() => {
-      loading.value = false;
-      statusText.value = "Done";
-      context.value = results.length > 0 ? "Results: " + results.join(", ") : "No results found.";
-    }, 2000);
-    */
+    response.value = ".. warte auf Absenden ..";
   }
 };
 
@@ -216,9 +219,62 @@ const ctxClear = () => {
   console.log("Clear button clicked.");
   if (context.value) {
     context.value = "";
-    response.value = ".. waiting for submission ..";
+    response.value = ".. warte auf Absenden ..";
   }
 };
+
+const getWeather = async () => {
+    try {
+      const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=49.0069&longitude=8.4037&current=temperature_2m,rain');
+      if (!res.ok) throw new Error(`Failed to load weather.php (${res.status})`);
+      const data = await res.json();
+      if (!data) {
+        console.warn('No weather data');
+      } else {
+        const curr = data.current ?? data.current_weather;
+        if (!curr) {
+          console.warn('Weather payload missing current/current_weather');
+        } else {
+          // numeric values
+          const temperature = Number(curr.temperature_2m ?? curr.temperature ?? NaN);
+          const rainVal = Number(curr.rain ?? 0);
+
+          // normalize time string: if it has no timezone/offset and the payload is GMT/utc, treat as UTC
+          let timeIso = String(curr.time ?? '');
+          if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(timeIso)) {
+            const tzStr = String(data.timezone ?? '').toUpperCase();
+            if (tzStr.includes('GMT') || data.utc_offset_seconds === 0 || data.timezone_abbreviation === 'GMT') {
+              timeIso += 'Z';
+            }
+          }
+          const dateUtc = new Date(timeIso);
+
+          // format for Karlsruhe (Europe/Berlin) with DST automatically handled by Intl
+          const targetZone = 'Europe/Berlin';
+          const fmt = new Intl.DateTimeFormat('de-DE', {
+            timeZone: targetZone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
+          const localTime = fmt.format(dateUtc);
+
+          const weekday = new Intl.DateTimeFormat('de-DE', { timeZone: targetZone, weekday: 'long' }).format(dateUtc);
+          const localTimeWithWeekday = `${weekday}, ${localTime}`;
+
+          const weather = `Heute ist ${localTimeWithWeekday}, Temperatur beträgt ${temperature.toFixed(1)}°C, ${rainVal ? `${rainVal} ${data.current_units?.rain ?? 'mm'}` : 'Kein Regen'}`;
+          return weather;
+        }
+      }
+
+    } catch (err) {
+      console.warn('Could not load weather.php:', err);
+    }
+    return undefined;
+  }
 
 onMounted(() => {
   // Check saved preference
@@ -232,7 +288,7 @@ onMounted(() => {
   }
 
   applyTheme();
-
+  // load context.json
   (async () => {
     try {
       const res = await fetch('data/context.json', { cache: 'no-cache' });
@@ -252,6 +308,27 @@ onMounted(() => {
       console.warn('Could not load /data/context.json:', err);
     }
   })();
+  // load classifier promt
+  (async () => {
+    try {
+      const res = await fetch('data/classifier_prompt.json', { cache: 'no-cache' });
+      if (!res.ok) throw new Error(`Failed to load classifier_prompt.json (${res.status})`);
+      const data = await res.json();
+      if (typeof(data) === 'object') {
+        classifier.value = data.prompt; 
+        console.log('Loaded classifier from /data/classifier_prompt.json' ) //, classifier.value);
+      } else {
+        console.warn('Invalid format in /data/classifier_prompt.json');
+      }
+    } catch (err) {
+      console.warn('Could not load /data/classifier_prompt.json:', err);
+    }
+  })();
+
+  // Test weather fetch
+  getWeather().then(weather => {
+    console.log(weather);
+  });
 
 });
 

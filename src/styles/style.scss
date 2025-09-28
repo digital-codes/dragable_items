@@ -8,14 +8,14 @@
   --text-light: #111;
   --text-dark: #eee;
 
-  --text-accent-light: #441;
-  --text-accent-dark: #bbe;
+  --text-accent-light: #811;
+  --text-accent-dark: #eaa;
 
   --border-light: #ddd;
   --border-dark: #444;
 
-  --border-accent-light: #ddf;
-  --border-accent-dark: #440;
+  --border-accent-light: #eaa;
+  --border-accent-dark: #844;
 
   --control-bg-light: #fff;
   --control-bg-dark: #2a2a2a;
@@ -27,6 +27,13 @@
   --gap: 8px;
 }
 
+/* header wraps on smaller screens. provide room for elements */
+@media (max-width: 599px) {
+  :root {
+    --header-height: 80px;
+  }
+}
+
 /* =========================================================
    Base
    ========================================================= */
@@ -35,7 +42,8 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden; /* scroll only inside containers */
+  overflow: hidden;
+  /* scroll only inside containers */
   box-sizing: border-box;
   font-family: "Roboto", system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif;
 }
@@ -53,6 +61,7 @@ body {
   background: var(--bg-light);
   color: var(--text-light);
 }
+
 .app-container.dark {
   background: var(--bg-dark);
   color: var(--text-dark);
@@ -67,12 +76,14 @@ body {
   z-index: 10;
   height: var(--header-height);
   display: flex;
-  align-items: center;         /* vertical centering for all children */
+  align-items: center;
+  /* vertical centering for all children */
   justify-content: space-between;
   padding: 0 12px;
   background: inherit;
   border-bottom: 1px solid var(--border-light);
 }
+
 .app-container.dark .app-header {
   border-bottom: 1px solid var(--border-dark);
 }
@@ -89,8 +100,10 @@ body {
   font: inherit;
   color: inherit;
 
-  height: 32px;                /* fixed height */
-  line-height: 32px;           /* text baseline aligns */
+  height: 32px;
+  /* fixed height */
+  line-height: 32px;
+  /* text baseline aligns */
   padding: 0 12px;
 
   border: 1px solid currentColor;
@@ -121,6 +134,7 @@ body {
   border-color: var(--border-light);
   color: var(--text-light);
 }
+
 .app-container.light .app-header .button:hover {
   background: var(--control-hover-light);
 }
@@ -131,6 +145,7 @@ body {
   border-color: var(--border-dark);
   color: var(--text-dark);
 }
+
 .app-container.dark .app-header .button:hover {
   background: var(--control-hover-dark);
 }
@@ -145,8 +160,10 @@ body {
   gap: 6px;
 
   font: inherit;
-  height: 32px;                /* same height as buttons */
-  line-height: 32px;           /* vertically aligned baseline */
+  height: 32px;
+  /* same height as buttons */
+  line-height: 32px;
+  /* vertically aligned baseline */
   vertical-align: middle;
 }
 
@@ -167,7 +184,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* =========================================================
@@ -187,10 +206,12 @@ body {
     grid-template-columns: 2fr 1fr 1fr 1fr;
     grid-template-rows: minmax(0, 1fr);
   }
+
   .cardlist-container {
     grid-column: 1 / 2;
     grid-row: 1;
   }
+
   .editfields-container {
     grid-column: 2 / 5;
     grid-row: 1;
@@ -203,10 +224,12 @@ body {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
   }
+
   .cardlist-container {
     grid-column: 1 / -1;
     grid-row: 1;
   }
+
   .editfields-container {
     grid-column: 1 / -1;
     grid-row: 2;
@@ -221,7 +244,9 @@ body {
   border-radius: 8px;
   background: transparent;
   overflow: hidden;
+  //overflow-y: scroll;
 }
+
 .app-container.dark .cardlist-container,
 .app-container.dark .editfields-container {
   border: 1px solid var(--border-dark);
@@ -236,7 +261,8 @@ body {
   padding-top: 0;
   min-height: 0;
 }
-.editfields-container > * {
+
+.editfields-container>* {
   min-width: 0;
   min-height: 0;
   display: flex;
@@ -253,10 +279,12 @@ body {
   gap: 8px;
   padding: 0.25rem 0.5rem;
   border-bottom: 1px solid var(--border-light);
-  height: 40px;                      /* fixed consistent height */
+  height: 40px;
+  /* fixed consistent height */
   min-height: 40px;
   box-sizing: border-box;
 }
+
 .app-container.dark .cardHeader {
   border-bottom: 1px solid var(--border-dark);
 }
@@ -289,7 +317,8 @@ body {
   border: 1px solid currentColor;
   cursor: pointer;
   background: transparent;
-  height: 28px;                     /* force uniform control height */
+  height: 28px;
+  /* force uniform control height */
   line-height: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -297,8 +326,15 @@ body {
 }
 
 /* Selects triple width of buttons */
-.cardHeader select { flex: 3 1 auto; min-width: 120px; }
-.cardHeader button { flex: 1 1 auto; min-width: 40px; }
+.cardHeader select {
+  flex: 3 1 auto;
+  min-width: 120px;
+}
+
+.cardHeader button {
+  flex: 1 1 auto;
+  min-width: 40px;
+}
 
 /* Light controls */
 .app-container.light .cardHeader select,
@@ -307,6 +343,7 @@ body {
   border-color: var(--border-light);
   color: var(--text-light);
 }
+
 .app-container.light .cardHeader select:hover,
 .app-container.light .cardHeader button:hover {
   background: var(--control-hover-light);
@@ -319,19 +356,29 @@ body {
   border-color: var(--border-dark);
   color: var(--text-dark);
 }
+
 .app-container.dark .cardHeader select:hover,
 .app-container.dark .cardHeader button:hover {
   background: var(--control-hover-dark);
 }
+
+// cardContainer 
+.cardContainer {
+  height: 100%;
+  overflow-y: scroll;
+}
+
 
 /* =========================================================
    Responsive tweak: hide Edit button icon on small screens
    ========================================================= */
 @media (max-width: 600px) {
   .cardHeader .editBtn .icon {
-    display: none;   /* hide the icon span */
+    display: none;
+    /* hide the icon span */
   }
 }
+
 
 /* =========================================================
    Edit textarea
@@ -351,6 +398,7 @@ body {
   color: var(--text-light);
   box-sizing: border-box;
 }
+
 .app-container.dark .editTextarea {
   border: 1px solid var(--border-dark);
   background: var(--control-bg-dark);
@@ -376,6 +424,7 @@ body {
   color: var(--text-accent-light);
   box-sizing: border-box;
 }
+
 .app-container.dark .editComments {
   border: 1px solid var(--border-accent-dark);
   background: var(--control-bg-dark);
@@ -391,19 +440,23 @@ body {
   padding: 0.5rem 1rem;
   border-top: 1px solid var(--border-light);
   background: var(--control-bg-light);
-  color: var(--text-light);          /* inherit theme text */
+  color: var(--text-light);
+  /* inherit theme text */
   box-sizing: border-box;
   transition: background 0.2s ease;
 }
+
 .app-container.dark .listItem {
   border-top: 1px solid var(--border-dark);
   background: var(--control-bg-dark);
-  color: var(--text-dark);           /* dark theme text */
+  color: var(--text-dark);
+  /* dark theme text */
 }
 
 /* Fixed item (dimmed, non-editable) */
 .listItem.fixed {
-  opacity: 0.6;                      /* visually distinct */
+  opacity: 0.6;
+  /* visually distinct */
   cursor: default;
 }
 
@@ -413,35 +466,66 @@ body {
   margin-right: 0.5rem;
   user-select: none;
   font-size: 1.2rem;
-  color: inherit;                    /* follow theme text */
+  color: inherit;
+  /* follow theme text */
 }
-.drag-handle:active { cursor: grabbing; }
 
-/* Input */
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Input - supports wrapping and dynamic height (use JS to fully autosize if needed) */
 .itemInput {
   flex: 1;
+  display: block;
   border: none;
   outline: none;
   background: transparent;
   font-size: 0.95rem;
-  color: inherit;                     /* follow theme text */
+  color: inherit;
+
+  /* allow multiline wrapping */
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: auto;
+  resize: none;
+
+
+  //height: auto;
+  /* let the element size to content where possible */
+  min-height: calc(1.4em * 3); /* ~3 lines tall by default */
+  max-height: calc(1.4em * 3); /* lock to 3 lines, then scroll */
+  line-height: 1.4;
+  padding: 0.25rem 0;
 }
+
+/* contenteditable variants also wrap and grow with content */
+.itemInput[contenteditable="true"] {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: visible;
+}
+
 .itemInput[readonly] {
-  opacity: 0.8;                       /* slight dimming when readonly */
+  opacity: 0.8;
+  /* slight dimming when readonly */
 }
 
 /* Delete button */
 .deleteBtn {
   background: transparent;
   border: none;
-  color: #d9534f;                     /* destructive color */
+  color: #d9534f;
+  /* destructive color */
   font-weight: bold;
   cursor: pointer;
   margin-left: 0.5rem;
   box-sizing: border-box;
 }
+
 .app-container.dark .deleteBtn {
-  color: #ff6b6b;                     /* brighter red in dark mode */
+  color: #ff6b6b;
+  /* brighter red in dark mode */
 }
 
 /* Drag states */
@@ -450,19 +534,23 @@ body {
   background: #ffd966;
   color: #111;
 }
+
 .app-container.dark .listItem.sortable-chosen {
   background: #665500;
   color: #eee;
 }
+
 .listItem.sortable-ghost {
   opacity: 0.5;
   border: 2px dashed var(--border-light);
   background: transparent;
   color: inherit;
 }
+
 .app-container.dark .listItem.sortable-ghost {
   border: 2px dashed var(--border-dark);
 }
+
 .listItem.sortable-drag {
   opacity: 0.5;
   transform: rotate(2deg);
@@ -470,14 +558,18 @@ body {
 
 /* Login button tick */
 .loginBtn .tick {
-  color: #28a745; /* green */
+  color: #28a745;
+  /* green */
   margin-right: 4px;
 }
 
 /* Modal backdrop */
 .modal-backdrop {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -494,6 +586,7 @@ body {
   padding: 1rem;
   width: 300px;
 }
+
 .app-container.dark .modal {
   background: var(--control-bg-dark);
   color: var(--text-dark);
@@ -509,6 +602,7 @@ body {
   border-radius: 4px;
   font: inherit;
 }
+
 .app-container.dark .codeInput {
   border: 1px solid var(--border-dark);
   background: var(--control-bg-dark);
