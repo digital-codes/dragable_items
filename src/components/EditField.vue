@@ -14,6 +14,11 @@
       :placeholder="placeHolder"
       :disabled="disabled"
     ></textarea>
+
+    <!-- Named slot "comments" — render only if provided and non-empty -->
+    <div v-if="comments" class="editComments">
+        <p>{{ comments }}</p>
+    </div>
   </div>
 </template>
 
@@ -26,12 +31,13 @@ const props = withDefaults(defineProps<{
     title?: string;
     disabled?: boolean;
     button?: string;
+    comments?: string | null;
 }>(), {
     title: 'No title',
     disabled: false,
-    button: ''
+    button: '',
+    comments: null
 });
-
 const placeHolder = computed(() => fieldContent.value == "" ? (disabled? '':'Write something…') : fieldContent.value);
 
 defineEmits<{

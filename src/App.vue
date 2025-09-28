@@ -33,7 +33,7 @@
       <!-- EditFields -->
       <div class="editfields-container">
         <EditField class="editfield" title="Query" v-model:fieldContent="query" :disabled="false" ref="queryFieldRef"
-          button="Search" @button-click="ctxSearch" />
+          button="Search" @button-click="ctxSearch" :comments="queryComments"/>
         <EditField class="editfield" title="Context" v-model:fieldContent="context" :disabled="false" button="Clear"
           @button-click="ctxClear" />
         <EditField class="editfield" title="Response" v-model:fieldContent="response" :disabled="true" />
@@ -67,6 +67,7 @@ const loggedIn = ref(false)
 const cardListRef = ref<InstanceType<typeof CardList> | null>(null);
 
 const query = ref("")
+const queryComments = ref<string | null>(null)
 const context = ref("No contex ...");
 
 const fullContext = ref<Array<{ id: number; key: string; value: string }>>([]);
@@ -183,11 +184,13 @@ const ctxSearch = () => {
       context.value = "";
       loading.value = false;
       statusText.value = "Nichts gefunden";
+      queryComments.value = null
       response.value = ".. waiting for submission ..";
       return;
     }
     const classes = Array.from(new Set(results.map(r => getTopicClass(r)).filter(Boolean)));
     console.log("Result classes:", classes);    
+    queryComments.value = `Gefundene Themen: ${classes.join(", ")}`;
     const matchedContext = contextMatch(classes, fullContext.value);
     console.log("Matched context:", matchedContext);
     if (matchedContext) {

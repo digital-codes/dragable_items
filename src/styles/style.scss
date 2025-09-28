@@ -8,8 +8,14 @@
   --text-light: #111;
   --text-dark: #eee;
 
+  --text-accent-light: #441;
+  --text-accent-dark: #bbe;
+
   --border-light: #ddd;
   --border-dark: #444;
+
+  --border-accent-light: #ddf;
+  --border-accent-dark: #440;
 
   --control-bg-light: #fff;
   --control-bg-dark: #2a2a2a;
@@ -350,6 +356,32 @@ body {
   background: var(--control-bg-dark);
   color: var(--text-dark);
 }
+
+/* =========================================================
+   Edit comments
+   ========================================================= */
+.editComments {
+  width: 100%;
+  height: 30%;
+  min-height: 0;
+  resize: none;
+  overflow-y: auto;
+  padding: 0.5rem;
+  border: 1px solid var(--border-accent-light);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-style: italic;
+  background: var(--control-bg-light);
+  color: var(--text-accent-light);
+  box-sizing: border-box;
+}
+.app-container.dark .editComments {
+  border: 1px solid var(--border-accent-dark);
+  background: var(--control-bg-dark);
+  color: var(--text-accent-dark);
+}
+
 /* =========================================================
    Draggable list items
    ========================================================= */
