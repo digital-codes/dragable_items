@@ -17,6 +17,7 @@
           Login
         </button>
         <button @click="submit" class="button">Absenden</button>
+        <button @click="download" class="button">Download</button>
         <button class="button" @click="toggleTheme">
           <font-awesome-icon :icon="['fas', theme === 'light' ? 'moon' : 'sun']" />
         </button>
@@ -79,6 +80,26 @@ watch(query, (newVal, oldVal) => {
   console.log("query changed:", { newVal, oldVal });
   console.log("QueryField content:", query.value);
 });
+
+
+const download = () => {
+  const p = cardListRef.value?.getCombinedText().trim() ?? "";
+  const q = query.value.trim();
+  const ctx = context.value.trim();
+  const cd = cardListRef.value?.getConditions()?.trim() ?? "";
+  const r = response.value.trim();
+  const content = `Frage:\n${q}\n\nPrompt:\n${p}\n\nKontext:\n${ctx}\n${cd}\n\nAntwort:\n${r}\n`;
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "chat.txt";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
 
 const openLogin = () => {
   loggedIn.value = false
