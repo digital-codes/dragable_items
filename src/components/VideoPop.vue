@@ -15,9 +15,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onBeforeUnmount } from 'vue'
+import { ref, onBeforeUnmount } from 'vue'
 
-const props = defineProps({
+defineProps({
   src: { type: String, required: true }
 })
 

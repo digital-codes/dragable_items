@@ -1,18 +1,99 @@
-# Vue 3 + TypeScript + Vite
+# RAG Demonstrator
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Enable testing of fundamental RAG functions
 
-## Recommended IDE Setup
+   1. System Prompt 
+      Choose from some presets. Edit or modify 
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+   2. Input Query 
 
-## Type Support For `.vue` Imports in TS
+   3. Context 
+      Derive context relevant for query to guide model response 
+      There are several options in principle: 
+         *  Full-text query for keywords 
+         *  Vector search (with embeddings) 
+         *  LLM classification 
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+      We use LLM classification. Model returns set of categories.
+      Matching context is assembled into context field. 
+      Optionally, environmental condition can be added to the context plus some
+      indication for general climatic conditions to demonstrate integration of sensor data
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+   4. Generation 
+      Prompt, query and context sent to LLM model, response displayed
 
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+
+Model usage might involve access to remote LLM service, therefore login to the backend is required.
+Configure the file "users.csv" with entries for 
+
+```csv
+user, password, comment 
+<user>,<hashed pwd>,<remember me>
+```
+
+accordingly.
+
+Create password hash like so: 
+
+```php
+   <?php
+   echo (password_hash("12341234", PASSWORD_DEFAULT));
+```
+
+The generated token is valid for 1 hour and equipped with a [*JTI* field](https://en.wikipedia.org/wiki/JSON_Web_Token). This is defined in the file *access.ini* like so: 
+
+```
+; access.ini - PHP INI style 
+; Set JTI level 
+ JTI="some value" 
+```
+
+
+
+Download option for all text fields
+
+
+
+Prompt, classfication and context samples in *public/data* 
+
+
+## Backend 
+
+PHP, will be documented later...
+
+
+## Build
+
+### Dev prerequisites
+
+**LLM**
+
+Either local ollama/llamacpp installation in server mode (API) 
+**or**
+access to OpenAI compatible remote LLM, e.g. deepinfra.com with API-token
+
+create configuration file config.ini like so:
+
+> [REMOTE]
+   apiKey = <your key>
+   llmodel = <your model>
+   llurl = <your url, like https://api.deepinfra.com/v1/openai/chat/completions>
+
+   [LOCAL]
+   apiKey = <dummy key like 1234>
+   llmodel = <your model>
+   llurl = <your local ollama url>
+
+
+**PHP server runing like so in project root**
+
+> php -S localhost:9000 -t public 
+
+**Install**
+
+npm install 
+
+npm run dev => local development 
+
+npm run build => build deployable version
+
