@@ -1,6 +1,6 @@
 <?php
 
-function remoteQuery($key, $model, $url, $prompt, $query): array
+function remoteQuery($key, $model, $url, $prompt, $query, $temperature = 0.5, $seed = 1234): array
 {
     // Build the messages array
     $messages = [
@@ -14,8 +14,8 @@ function remoteQuery($key, $model, $url, $prompt, $query): array
     $payload = json_encode([
         "model" => $model,
         "messages" => $messages,
-        "temperature" => 0.5, // Example temperature setting
-        "seed" => 1234
+        "temperature" => $temperature,
+        "seed" => $seed
     ]);
 
     // Set up cURL

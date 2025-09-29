@@ -368,6 +368,12 @@ body {
   overflow-y: scroll;
 }
 
+.app-container.light .button span.icon {
+  color: var(--text-accent-light);
+}
+.app-container.dark .button span.icon {
+  color: var(--text-accent-dark);
+}
 
 /* =========================================================
    Responsive tweak: hide Edit button icon on small screens

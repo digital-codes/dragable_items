@@ -92,9 +92,13 @@ $token = str_replace('Bearer ', '', $authHeader);
 
 try {
     $user = parseToken($token, $isLocal);
+    if (!$user) {
+        http_response_code(401);
+        exit('Unauthorized (invalid token)');
+    }
 } catch (Exception $e) {
     http_response_code(401);
-    exit('Unauthorized (2)');
+    exit('Unauthorized (error)');
 }
 
 if (!isset($data['query'])) {
@@ -113,6 +117,19 @@ if (!isset($data['prompt'])) {
     exit;
 }
 $systemPrompt = $data['prompt'];
+
+// more optional params
+if (isset($data['seed'])) {
+    $seed = (int)$data['seed'];
+} else {
+    $seed = 1234; // default seed
+}
+if (isset($data['temperature'])) {
+    $temperature = (float)$data['temperature];'];
+} else {
+    $temperature = 0.5; // default temperature
+}
+
 
 if (isset($data['context'])) {
     // add context to query
@@ -146,7 +163,7 @@ $url = $configLlm['llurl'];
 logError("Using remote LLM API at $url, model $model", $logFile);
 
 // Call the function
-$response = remoteQuery($apiKey, $model, $url, $systemPrompt, $userQuery);
+$response = remoteQuery($apiKey, $model, $url, $systemPrompt, $userQuery, $temperature, $seed);
 if ($response['status'] === 'error') {
     http_response_code(500);
     logError("remote llm failed", $logFile);

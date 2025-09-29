@@ -16,6 +16,9 @@
           <span v-if="loggedIn" class="tick">✔</span>
           Login
         </button>
+        <button @click="openVideo" class="button">
+          <font-awesome-icon :icon="['fas', 'video']" />
+        </button>
         <button @click="submit" class="button">Absenden</button>
         <button @click="download" class="button">Download</button>
         <button class="button" @click="toggleTheme">
@@ -44,6 +47,7 @@
 
   <!-- Login popup -->
   <LoginPopup v-if="showLogin" @success="handleLoginSuccess" @close="showLogin = false" />
+  <VideoPopup v-if="showVideo" :src="videoSrc" @close="showVideo = false" />
 
 </template>
 
@@ -52,11 +56,15 @@ import { ref, onMounted } from "vue";
 import { watch } from "vue";
 import CardList from "./components/CardList.vue";
 import EditField from "./components/EditField.vue";
-import LoginPopup from "./components/LoginPop.vue"
+import LoginPopup from "./components/LoginPop.vue";
+import VideoPopup from "./components/VideoPop.vue";
 
 
 const showLogin = ref(false)
 const loggedIn = ref(false)
+
+const showVideo = ref(false);
+const videoSrc = ref("media/baumvideo.mp4");
 
 const cardListRef = ref<InstanceType<typeof CardList> | null>(null);
 
@@ -107,6 +115,11 @@ const openLogin = () => {
   showLogin.value = true
 }
 
+const openVideo = () => {
+  console.log("Open video popup");
+  showVideo.value = true
+}
+
 
 function handleLoginSuccess(token: string) {
   localStorage.setItem("auth-token", token)
@@ -114,7 +127,7 @@ function handleLoginSuccess(token: string) {
   showLogin.value = false
 }
 
-const llmCall = async (p: string, ctx: string, cnd: string, q: string) => {
+const llmCall = async (p: string, ctx: string, cnd: string, q: string, temperature: number, seed: number) => {
   // Placeholder for LLM call logic
   const token = localStorage.getItem("auth-token");
   if (!token) {
@@ -123,9 +136,11 @@ const llmCall = async (p: string, ctx: string, cnd: string, q: string) => {
   }
   console.log("LLM call initiated");
   try {
-    const payload: { query: string; prompt: string; context?: string } = {
+    const payload: { query: string; prompt: string; context?: string; temperature?: number; seed?: number } = {
       query: q,
-      prompt: p
+      prompt: p,
+      temperature: temperature,
+      seed: seed
     };
     if (ctx) {
       payload.context = (cnd && cnd.length > 0) ? ctx + "\n" + cnd : ctx
@@ -142,8 +157,19 @@ const llmCall = async (p: string, ctx: string, cnd: string, q: string) => {
 
     if (!res.ok) {
       const errText = await res.text();
-      throw new Error(`Request failed (${res.status}): ${errText}`);
+      console.log("LLM call failed:", res.status, errText);
+      if (res.status === 401) {
+        localStorage.removeItem("auth-token");
+        loggedIn.value = false;
+        alert("Anmeldung abgelaufen. Bitte erneut anmelden.");
+      } else {
+        alert(`Fehler bei der Anfrage: ${res.status} ${errText}`);
+      }
+      loading.value = false;
+      statusText.value = "Error";
+      return null
     }
+    
 
     // try parse JSON, fall back to text
     let body: any;
@@ -198,7 +224,7 @@ const submit = async () => {
   statusText.value = "Loading...";
   let results: string[] = [];
   // for llm, build the call params
-  const r = await llmCall(p, context.value ? context.value : "", cd ? cd : "", q);
+  const r = await llmCall(p, context.value ? context.value : "", cd ? cd : "", q, 0.5, 1234);
   loading.value = false;
   if (typeof r === "string") {
     statusText.value = "Fertig";
@@ -222,7 +248,7 @@ const ctxSearch = async () => {
     let classes: string[] = [];
     // for llm, build the call params
     if (classifier?.value) {
-      const r = await llmCall(classifier?.value, "", "", query.value);
+      const r = await llmCall(classifier?.value, "", "", query.value, 0.0, 42);
       if (typeof r === "string") {
         classes = r.split(",").map(s => s.trim()).filter(s => s.length > 0);
         console.log("LLM classification results:", classes);
