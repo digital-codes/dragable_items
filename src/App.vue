@@ -19,6 +19,9 @@
         <button @click="openVideo" class="button">
           <font-awesome-icon :icon="['fas', 'video']" />
         </button>
+        <button class="button" @click="toggleTemperature">
+          <font-awesome-icon :icon="['fas', tempIcon]" />
+        </button>
         <button @click="submit" class="button">Absenden</button>
         <button @click="download" class="button">Download</button>
         <button class="button" @click="toggleTheme">
@@ -81,6 +84,21 @@ const response = ref("");
 const loading = ref(false);
 const statusText = ref("Gelangweilt");
 const theme = ref("light");
+
+const tempIcon = ref("gauge");
+const toggleTemperature = () => {
+  switch (tempIcon.value) {
+    case "gauge":
+      tempIcon.value = "fire";
+      break;
+    case "snowflake":
+      tempIcon.value = "gauge";
+      break;
+    case "fire":
+      tempIcon.value = "snowflake";
+      break;
+  }
+}
 
 
 // query is bound to modelValue of EditField
@@ -224,7 +242,18 @@ const submit = async () => {
   statusText.value = "Loading...";
   let results: string[] = [];
   // for llm, build the call params
-  const r = await llmCall(p, context.value ? context.value : "", cd ? cd : "", q, 0.5, 1234);
+  let temp = .5
+  switch (tempIcon.value) {
+    case "snowflake":
+      // low
+      temp = 0.0
+      break;
+    case "fire":
+      // high
+      temp = 1.0
+      break;
+  }
+  const r = await llmCall(p, context.value ? context.value : "", cd ? cd : "", q, temp, 1234 * (10 * temp));
   loading.value = false;
   if (typeof r === "string") {
     statusText.value = "Fertig";

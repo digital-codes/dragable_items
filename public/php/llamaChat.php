@@ -124,8 +124,9 @@ if (isset($data['seed'])) {
 } else {
     $seed = 1234; // default seed
 }
+
 if (isset($data['temperature'])) {
-    $temperature = (float)$data['temperature];'];
+    $temperature = (float)$data['temperature'];
 } else {
     $temperature = 0.5; // default temperature
 }
@@ -160,7 +161,7 @@ if (!$configLlm) {
 $apiKey = $configLlm['apiKey'];
 $model = $configLlm['llmodel'];
 $url = $configLlm['llurl'];
-logError("Using remote LLM API at $url, model $model", $logFile);
+logError("Using remote LLM API at $url, model $model, temperature $temperature, seed $seed", $logFile);
 
 // Call the function
 $response = remoteQuery($apiKey, $model, $url, $systemPrompt, $userQuery, $temperature, $seed);
