@@ -3,7 +3,7 @@
 Enable testing of fundamental RAG functions
 
    1. System Prompt 
-      Choose from some presets. Edit or modify 
+      Choose from some presets via *Prompt Auswahl*. Add new lines (*pen* field) or edit any field. Rearrange via drag marker (left), remove via cancel marker (right).
 
    2. Input Query 
 
@@ -14,16 +14,29 @@ Enable testing of fundamental RAG functions
          *  Vector search (with embeddings) 
          *  LLM classification 
 
-      We use LLM classification. Model returns set of categories.
+      We use LLM classification. Click **Suche** next to *Frage*. Model returns set of categories.
       Matching context is assembled into context field. 
       Optionally, environmental condition can be added to the context plus some
-      indication for general climatic conditions to demonstrate integration of sensor data
+      indication for general climatic conditions to demonstrate integration of sensor
+      data via *Wetter* drop-down (remove option to change) 
+      Context field can be edited or cleared (click *Löschen*)
 
    4. Generation 
-      Prompt, query and context sent to LLM model, response displayed
+      Prompt, query and context sent to LLM model, response displayed in **Antwort**
 
 
-Model usage might involve access to remote LLM service, therefore login to the backend is required.
+Model usage might involve access to remote LLM service, therefore **Login** to the backend is required (see *backend*)
+
+Download option for all text fields: click **Download**
+
+
+Samples for prompt, classfication and context in *public/data* 
+
+
+## Backend 
+
+Backend PHP code in *public/php*
+
 Configure the file "users.csv" with entries for 
 
 ```csv
@@ -49,17 +62,6 @@ The generated token is valid for 1 hour and equipped with a [*JTI* field](https:
 ```
 
 
-
-Download option for all text fields
-
-
-
-Prompt, classfication and context samples in *public/data* 
-
-
-## Backend 
-
-PHP, will be documented later...
 
 
 ## Build
