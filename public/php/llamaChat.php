@@ -11,6 +11,12 @@ require_once 'llamaCheckToken.php';
 // Define paths
 $logFile = __DIR__ . '/llamachat.log';
 
+// locking mechanism
+require_once __DIR__ . '/locking.php';
+$lockname = 'ragdemo';
+
+
+
 // Helper to log errors
 function logError($message, $logFile)
 {
@@ -145,9 +151,11 @@ if (isset($data['context'])) {
 if ($user === "any") {
     $configLlm = parse_ini_file($iniPath, true)['LOCAL'] ?? null;
     logError("Local LLM requested due to user ANY", $logFile);
+    $useLock = true;
 } else {
     logError("User is $user, using remote llm", $logFile);
     $configLlm = parse_ini_file($iniPath, true)['REMOTE'] ?? null;
+    $useLock = false;
 }
 
 if (!$configLlm) {
@@ -163,8 +171,26 @@ $model = $configLlm['llmodel'];
 $url = $configLlm['llurl'];
 logError("Using remote LLM API at $url, model $model, temperature $temperature, seed $seed", $logFile);
 
-// Call the function
-$response = remoteQuery($apiKey, $model, $url, $systemPrompt, $userQuery, $temperature, $seed);
+if ($useLock) {
+    // acquire lock
+    $lock = acquireLock($lockname, 300); // 5 minutes timeout
+    if (!$lock) {
+        http_response_code(503);
+        logError("Could not acquire lock for $lockname", $logFile);
+        echo json_encode(['error' => 'Server busy, try again later']);
+        exit;
+    }
+    logError("Lock acquired for $lockname", $logFile);
+    // Call the function
+    $response = remoteQuery($apiKey, $model, $url, $systemPrompt, $userQuery, $temperature, $seed);
+    // release lock
+    releaseLock($lock);
+    logError("Lock released for $lockname", $logFile);  
+} else {
+    // Call the function
+    $response = remoteQuery($apiKey, $model, $url, $systemPrompt, $userQuery, $temperature, $seed);
+}
+
 if ($response['status'] === 'error') {
     http_response_code(500);
     logError("remote llm failed", $logFile);

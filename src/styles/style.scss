@@ -23,6 +23,12 @@
   --control-hover-light: #f0f0f0;
   --control-hover-dark: #333;
 
+  --color-success-light: #080;
+  --color-success-dark: #0e0;
+
+  --color-failed-light: #800;
+  --color-failed-dark: #e00;
+
   --header-height: 60px;
   --gap: 8px;
 }
@@ -324,6 +330,10 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+// allow for tooltips
+.cardHeader button:hover {
+  overflow: visible;
+}
 
 /* Selects triple width of buttons */
 .cardHeader select {
@@ -563,10 +573,11 @@ body {
 }
 
 /* Login button tick */
-.loginBtn .tick {
-  color: #28a745;
-  /* green */
-  margin-right: 4px;
+.app-container.light .editBtn .addPrompt {
+  color: var(--text-accent-light);
+}
+.app-container.dark .editBtn .addPrompt {
+  color: var(--text-accent-dark);
 }
 
 /* Modal backdrop */
@@ -621,3 +632,40 @@ body {
   justify-content: flex-end;
   gap: 8px;
 }
+
+// *****************************************************
+// tooltips
+//html body div#app div.app-container.light header.app-header div.right-controls button.button span.tooltiptext
+
+
+.app-container.light .tooltip .tooltiptext {
+  color: var(--text-light);
+  background-color: var(--bg-light);
+  border: 2px solid var(--border-accent-light);
+}
+.app-container.dark .tooltip .tooltiptext {
+  color: var(--text-dark);
+  background-color: var(--bg-dark);
+  border: 2px solid var(--border-accent-dark);
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.tooltiptext {
+  visibility: hidden;
+  width: 130px;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+

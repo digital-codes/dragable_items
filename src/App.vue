@@ -12,20 +12,34 @@
       </div>
 
       <div class="right-controls">
-        <button class="button loginBtn" @click="openLogin">
-          <span v-if="loggedIn" class="tick">✔</span>
+        <button class="button tooltip" @click="openInfo">
+          <font-awesome-icon :icon="['fas', 'question']"/>
+            <span class="tooltiptext">Info</span>
+        </button>
+        <button class="button loginBtn tooltip" @click="openLogin">
+          <font-awesome-icon v-if="loggedIn" :icon="['fas', 'check']" class="tick"/>
           Login
+          <span class="tooltiptext">Anmelden</span>
         </button>
-        <button @click="openVideo" class="button">
+        <button @click="openVideo" class="button tooltip">
           <font-awesome-icon :icon="['fas', 'video']" />
+          <span class="tooltiptext">Video</span>
         </button>
-        <button class="button" @click="toggleTemperature">
+        <button class="button tooltip" @click="toggleTemperature">
           <font-awesome-icon :icon="['fas', tempIcon]" />
+          <span class="tooltiptext">Temperatur</span> 
         </button>
-        <button @click="submit" class="button">Absenden</button>
-        <button @click="download" class="button">Download</button>
-        <button class="button" @click="toggleTheme">
+        <button @click="submit" class="button tooltip">
+          <span class="tooltiptext">KI befragen</span>
+          Absenden
+        </button>
+        <button @click="download" class="button tooltip">
+          <span class="tooltiptext">Download</span>
+          Download
+        </button>
+        <button class="button tooltip" @click="toggleTheme">
           <font-awesome-icon :icon="['fas', theme === 'light' ? 'moon' : 'sun']" />
+          <span class="tooltiptext">{{ theme === 'light' ? 'Dunkel' : 'Hell' }}</span>
         </button>
       </div>
     </header>
@@ -124,6 +138,10 @@ const download = () => {
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+};
+
+const openInfo = () => {
+  alert("Quellcode: https://github.com/digital-codes/rag_demo");
 };
 
 

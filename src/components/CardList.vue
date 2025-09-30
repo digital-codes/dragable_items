@@ -10,9 +10,9 @@
         <option v-for="key in Object.keys(itemPresets)" :key="key" :value="key">{{ key }}</option>
       </select>
 
-    <button class="editBtn" @click="addEmptyItem">
-      <span class="icon">✏️</span>
-      Neu
+    <button class="editBtn tooltip" @click="addEmptyItem">
+      <font-awesome-icon :icon="['fas', 'plus']" class="addPrompt"/>
+      <span class="tooltiptext">Neue Promptzeile</span>
     </button>
 
       <select v-model="selectedCondition" @change="addCondition" :disabled="!!condition">

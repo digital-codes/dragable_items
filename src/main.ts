@@ -7,9 +7,9 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 // Pick only the icons you actually use
-import { faMoon, faSun, faVideo, faCamera, faCaretDown, faGauge, faFire,faSnowflake  } from "@fortawesome/free-solid-svg-icons";
+import { faMoon, faSun, faVideo, faCamera, faCaretDown, faGauge, faFire,faSnowflake, faCheck, faPlus, faInfo, faQuestion  } from "@fortawesome/free-solid-svg-icons";
 
-library.add(faMoon, faSun, faVideo, faCamera, faCaretDown, faGauge, faFire, faSnowflake);
+library.add(faMoon, faSun, faVideo, faCamera, faCaretDown, faGauge, faFire, faSnowflake, faCheck, faPlus, faInfo, faQuestion);
 
 // Import fonts
 import "@fontsource/roboto/400.css";
