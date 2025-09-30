@@ -65,6 +65,7 @@
   <!-- Login popup -->
   <LoginPopup v-if="showLogin" @success="handleLoginSuccess" @close="showLogin = false" />
   <VideoPopup v-if="showVideo" :src="videoSrc" @close="showVideo = false" />
+  <InfoPopup v-if="showInfo" @close="showInfo = false" />
 
 </template>
 
@@ -75,13 +76,16 @@ import CardList from "./components/CardList.vue";
 import EditField from "./components/EditField.vue";
 import LoginPopup from "./components/LoginPop.vue";
 import VideoPopup from "./components/VideoPop.vue";
-
+import InfoPopup from "./components/InfoPop.vue";
 
 const showLogin = ref(false)
 const loggedIn = ref(false)
 
 const showVideo = ref(false);
 const videoSrc = ref("media/baumvideo.mp4");
+
+const showInfo = ref(false);
+
 
 const cardListRef = ref<InstanceType<typeof CardList> | null>(null);
 
@@ -141,7 +145,7 @@ const download = () => {
 };
 
 const openInfo = () => {
-  alert("Quellcode: https://github.com/digital-codes/rag_demo");
+  showInfo.value = true;
 };
 
 
