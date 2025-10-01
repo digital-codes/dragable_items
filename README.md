@@ -40,7 +40,7 @@ Backend PHP code in *public/php*
 Configure the file "users.csv" with entries for 
 
 ```csv
-user, password, comment 
+users, password, comment 
 <user>,<hashed pwd>,<remember me>
 ```
 
@@ -61,7 +61,12 @@ The generated token is valid for 1 hour and equipped with a [*JTI* field](https:
  JTI="some value" 
 ```
 
+Create credential files: run *php mkKey.php* 
 
+
+**Warning**
+*Don't store sensitive information in (users, keys etc) in your repositiory. For production, move 
+the files to a save location given via basedir.txt and remove them for the php folder.*
 
 
 ## Build

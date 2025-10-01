@@ -573,6 +573,14 @@ body {
 }
 
 /* Login button tick */
+.app-container.light .loginBtn .tick {
+  color: var(--color-success-light);
+}
+.app-container.dark .loginBtn .tick {
+  color: var(--color-success-dark);
+}
+
+// new promptline button
 .app-container.light .editBtn .addPrompt {
   color: var(--text-accent-light);
 }
@@ -662,6 +670,7 @@ body {
   border-radius: 6px;
   padding: 5px 0;
   position: absolute;
+  top: 2rem;
   z-index: 1;
 }
 

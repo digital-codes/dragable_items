@@ -22,6 +22,7 @@ function remoteQuery($key, $model, $url, $prompt, $query, $temperature = 0.5, $s
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 180);        // 180s overall limit
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         "Content-Type: application/json",
         "Authorization: Bearer $key"
